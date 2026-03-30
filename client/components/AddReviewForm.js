@@ -39,7 +39,8 @@ export default function AddReviewForm({ professorId, onReviewAdded }) {
     setSubmitting(true);
 
     try {
-      await submitReview({ ...formData, professorId });
+      const payload = { ...formData, rating: parseFloat(computedRating), professorId };
+      await submitReview(payload);
       setSuccess(true);
       setFormData({
         rating: 3,
@@ -59,17 +60,24 @@ export default function AddReviewForm({ professorId, onReviewAdded }) {
   };
 
   const sliderFields = [
-    { key: "rating", label: "Overall Rating", color: "accent-indigo-500" },
     { key: "teachingQuality", label: "Teaching Quality", color: "accent-cyan-500" },
     { key: "difficulty", label: "Difficulty", color: "accent-orange-500" },
     { key: "gradingStrictness", label: "Grading Strictness", color: "accent-amber-500" },
     { key: "attendanceStrictness", label: "Attendance Strictness", color: "accent-pink-500" },
   ];
 
+  const computedRating = ((formData.teachingQuality + formData.difficulty + formData.gradingStrictness + formData.attendanceStrictness) / 4).toFixed(1);
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Rating sliders */}
       <div className="space-y-5">
+        <div className="flex items-center justify-between mb-2 bg-indigo-500/10 px-5 py-4 rounded-xl border border-indigo-500/20">
+          <span className="text-indigo-200 font-medium">Overall Rating (Calculated)</span>
+          <span className="text-2xl font-bold text-indigo-400">
+            {computedRating}/5
+          </span>
+        </div>
         {sliderFields.map(({ key, label, color }) => (
           <div key={key}>
             <div className="flex items-center justify-between mb-2">
