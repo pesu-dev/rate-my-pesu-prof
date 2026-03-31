@@ -1,6 +1,15 @@
 const jwt = require("jsonwebtoken");
 
-const JWT_SECRET = process.env.JWT_SECRET || "super_secret_lallantaap_key_123_PES_EDITION";
+const JWT_SECRET = process.env.JWT_SECRET;
+
+if (!JWT_SECRET) {
+  console.error("❌ FATAL: JWT_SECRET is not defined in environment variables!");
+  // In production, we must throw an error to prevent insecure operation.
+  if (process.env.NODE_ENV === "production") {
+    throw new Error("JWT_SECRET is missing");
+  }
+}
+
 
 // Middleware to verify if the request has a valid JWT token
 const verifyToken = (req, res, next) => {
