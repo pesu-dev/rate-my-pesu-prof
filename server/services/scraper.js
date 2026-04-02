@@ -2,13 +2,11 @@ const axios = require("axios");
 const cheerio = require("cheerio");
 const Professor = require("../models/Professor");
 
-// const SCRAPE_URL = "https://staff.pes.edu/ec/atoz/computer-science/";
 const BASE_URL = "https://staff.pes.edu";
-
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 async function scrapeProfessors(targetUrl, targetDepartment, targetCampus) {
-  console.log(`🚀 Starting professor scraping pipeline for ${targetDepartment} at ${targetCampus} (${targetUrl})...`);
+  console.log(`[Scraper] Starting: ${targetDepartment} @ ${targetCampus} (${targetUrl})`);
 
   let page = 1;
   let totalFoundAcrossPages = 0;
@@ -18,7 +16,7 @@ async function scrapeProfessors(targetUrl, targetDepartment, targetCampus) {
   try {
     while (true) {
       const pagedUrl = `${targetUrl}?page=${page}`;
-      console.log(`📄 Fetching page ${page}... (${pagedUrl})`);
+      console.log(`[Scraper] Fetching page ${page}...`);
 
       const { data } = await axios.get(pagedUrl);
       const $ = cheerio.load(data);
@@ -34,7 +32,9 @@ async function scrapeProfessors(targetUrl, targetDepartment, targetCampus) {
         designationText = designationText.replace(/\s+/g, ' ').trim();
 
         const profileHref = $(element).find('a.geodir-category-img_item').attr("href");
-        const profileUrl = profileHref ? (profileHref.startsWith("http") ? profileHref : `${BASE_URL}${profileHref}`) : "";
+        const profileUrl = profileHref
+          ? (profileHref.startsWith("http") ? profileHref : `${BASE_URL}${profileHref}`)
+          : "";
 
         if (nameText) {
           professors.push({
@@ -53,11 +53,11 @@ async function scrapeProfessors(targetUrl, targetDepartment, targetCampus) {
       });
 
       if (professors.length === 0 || newProfessorsOnPage === 0) {
-        console.log(`🛑 Reached the end. No new professors found on page ${page}. Ending pagination.`);
-        break; // Exit the loop if the page is empty or if we are just seeing duplicates
+        console.log(`[Scraper] No new professors found on page ${page}. Stopping.`);
+        break;
       }
 
-      console.log(`✅ Extracted ${newProfessorsOnPage} *new* professors from page ${page}. Starting DB insertion...`);
+      console.log(`[Scraper] Found ${newProfessorsOnPage} new professor(s) on page ${page}. Writing to DB...`);
       totalFoundAcrossPages += newProfessorsOnPage;
 
       for (const prof of professors) {
@@ -70,23 +70,23 @@ async function scrapeProfessors(targetUrl, targetDepartment, targetCampus) {
           totalProcessedAcrossPages++;
           await delay(100);
         } catch (insertError) {
-          console.error(`⚠️ Error inserting ${prof.name}:`, insertError.message);
+          console.error(`[Scraper] Error inserting ${prof.name}:`, insertError.message);
         }
       }
 
       page++;
     }
 
-    console.log(`🎉 Finished scraping process. Upserted/Verified ${totalProcessedAcrossPages} unique professors in total for ${targetDepartment}.`);
+    console.log(`[Scraper] Done. Upserted ${totalProcessedAcrossPages} professors for ${targetDepartment}.`);
     return {
       success: true,
       totalFound: totalFoundAcrossPages,
       processed: totalProcessedAcrossPages,
     };
   } catch (error) {
-    console.error("❌ Scraping failed:", error.message);
+    console.error(`[Scraper] Failed:`, error.message);
     return {
-      success: false, // Could return partial success here if needed
+      success: false,
       error: error.message,
     };
   }

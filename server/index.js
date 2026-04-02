@@ -51,45 +51,37 @@ async function startServer() {
   let mongoUri = process.env.MONGODB_URI;
 
   try {
-    // Try connecting to the configured URI first. Give Render more time in production.
     const timeout = process.env.NODE_ENV === 'production' ? 20000 : 3000;
     await mongoose.connect(mongoUri, { serverSelectionTimeoutMS: timeout });
-    console.log("✅ Successfully connected to MongoDB Atlas");
-
-    // Auto-seed if empty
+    console.log("Connected to MongoDB Atlas.");
     await seedDatabase();
   } catch (err) {
-    // In production, we MUST fail if we can't connect, not use memory DB!
     if (process.env.NODE_ENV === 'production') {
-      console.error("❌ FATAL ERROR: Could not connect to MongoDB Atlas in production!");
-      console.error("Error Message:", err.message);
-      console.log("Check your MONGODB_URI and Atlas IP Whitelist.");
-      process.exit(1); 
+      console.error("FATAL: Could not connect to MongoDB Atlas in production.");
+      console.error("Error:", err.message);
+      process.exit(1);
     }
 
-    console.log("⚠️  Could not connect to MongoDB, starting in-memory database...");
+    console.warn("Could not connect to MongoDB. Starting with in-memory database...");
     const { MongoMemoryServer } = require("mongodb-memory-server");
     const mongod = await MongoMemoryServer.create();
     mongoUri = mongod.getUri();
     await mongoose.connect(mongoUri);
-    console.log("✅ Connected to in-memory MongoDB");
-
-    // Auto-seed with sample data in memory mode
+    console.log("Connected to in-memory MongoDB.");
     await seedDatabase();
   }
 
   app.listen(PORT, () => {
-    console.log(`🚀 Server is live on port ${PORT}`);
+    console.log(`Server running on port ${PORT}.`);
   });
 }
 
-// Auto Seed Logic
 async function seedDatabase() {
   try {
     const User = require("./models/User");
     const adminExists = await User.findOne({ username: "ssmeduri" });
     if (!adminExists) {
-      console.log("🛡️ Seeding admin account...");
+      console.log("Seeding admin account...");
       const bcrypt = require("bcryptjs");
       const hashed = await bcrypt.hash("Lallantaap@123", 10);
       await User.create({ username: "ssmeduri", password: hashed, role: "admin" });
@@ -98,12 +90,12 @@ async function seedDatabase() {
     const Professor = require("./models/Professor");
     const count = await Professor.countDocuments();
     if (count === 0) {
-      console.log("📦 Professor collection is empty. Invoking scraper to seed data...");
+      console.log("Professor collection is empty. Running initial scrape...");
       const { scrapeProfessors } = require("./services/scraper");
       await scrapeProfessors("https://staff.pes.edu/ec/atoz/computer-science/", "Computer Science", "EC Campus");
     }
   } catch (error) {
-    console.log("⚠️ Error during auto-seeding:", error.message);
+    console.warn("Error during auto-seeding:", error.message);
   }
 }
 
