@@ -1,3 +1,15 @@
+/**
+ * scrape_all.js
+ *
+ * One-time script to scrape and populate the professor directory from staff.pes.edu.
+ * Iterates over all campuses and departments and upserts professor records into MongoDB.
+ *
+ * Usage:
+ *   node server/scrape_all.js
+ *
+ * Ensure MONGODB_URI is set in server/.env before running.
+ */
+
 require("dotenv").config();
 const mongoose = require("mongoose");
 const { scrapeProfessors } = require("./services/scraper");
@@ -33,27 +45,24 @@ const CAMPUS_DATA = {
 async function scrapeEverything() {
   const uri = process.env.MONGODB_URI;
   if (!uri || uri.includes("localhost")) {
-    console.log("⚠️ WARNING: You are connecting to the LOCAL database.");
-    console.log("If you want to populate your live Atlas Database, please update your server/.env file!\n");
+    console.warn("WARNING: Connecting to a local database. Update server/.env to target Atlas.");
   }
 
   try {
     console.log("Connecting to MongoDB...");
     await mongoose.connect(uri);
-    console.log("✅ Connected!\n");
+    console.log("Connected.\n");
 
     const campuses = Object.keys(CAMPUS_DATA);
     let totalFound = 0;
-    
+
     for (const campus of campuses) {
-      console.log(`\n========================================`);
-      console.log(`🏫 SCRAPING CAMPUS: ${campus}`);
-      console.log(`========================================`);
-      
+      console.log(`\n--- ${campus} ---`);
+
       const departments = CAMPUS_DATA[campus];
-      
+
       for (const dept of departments) {
-        console.log(`\n📚 Department: ${dept.name}`);
+        console.log(`  Scraping: ${dept.name}`);
         const result = await scrapeProfessors(dept.url, dept.name, campus);
         if (result && result.processed) {
           totalFound += result.processed;
@@ -61,13 +70,13 @@ async function scrapeEverything() {
       }
     }
 
-    console.log(`\n🎉 FINISHED! Successfully scraped/updated a total of ${totalFound} professors across all campuses!`);
-    
+    console.log(`\nFinished. Scraped/updated ${totalFound} professors across all campuses.`);
+
   } catch (error) {
-    console.error("❌ Fatal Error:", error);
+    console.error("Fatal error:", error);
   } finally {
     await mongoose.disconnect();
-    console.log("👋 Disconnected.");
+    console.log("Disconnected.");
     process.exit(0);
   }
 }

@@ -51,12 +51,20 @@ router.post("/", verifyToken, profanityMiddleware, async (req, res) => {
     // Generate anonymous student hash if user is a student
     let studentHash = null;
     if (req.user.role === "student") {
-      // ─── ACADEMIC VERIFICATION CHECK ───
-      // (Bypassed by user request: allow all students to rate all professors)
-      const professor = await Professor.findById(professorId);
-      
-      if (!professor) {
-        return res.status(404).json({ error: "Professor not found" });
+      // Academic verification: check that this professor is in the student's
+      // academic history as scraped from PESU Academy at login time.
+      const allowedProfessors = req.user.allowedProfessors || [];
+
+      if (allowedProfessors.length === 0) {
+        return res.status(403).json({
+          error: "Your academic history could not be verified. Please log out and sign in again.",
+        });
+      }
+
+      if (!isMemberOf(professor.name, allowedProfessors)) {
+        return res.status(403).json({
+          error: "You can only review professors who have taught you.",
+        });
       }
 
       const srn = req.user.username;
@@ -64,8 +72,8 @@ router.post("/", verifyToken, profanityMiddleware, async (req, res) => {
         .createHash("sha256")
         .update(srn + professorId + JWT_SECRET)
         .digest("hex");
-      
-      // Check for existing review by this student for this professor
+
+      // Prevent duplicate reviews from the same student for the same professor
       const existing = await Review.findOne({ professorId, studentHash });
       if (existing) {
         return res.status(400).json({ error: "You have already reviewed this professor." });
