@@ -12,7 +12,7 @@ const Professor = require("../models/Professor");
 async function updateProfessorAggregates(professorId) {
   try {
     // ─── Only count visible (non-hidden) reviews ───
-    const visibleReviews = await Review.find({ professorId, isHidden: false });
+    const visibleReviews = await Review.find({ professorId, isHidden: { $ne: true } });
     const professor = await Professor.findById(professorId);
 
     if (!professor) return;

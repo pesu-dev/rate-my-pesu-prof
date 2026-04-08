@@ -74,7 +74,7 @@ router.post("/", verifyToken, checkProfanity, async (req, res) => {
         });
       }
 
-      if (!isMemberOf(professor.name, allowedProfessors)) {
+      if (!allowedProfessors.includes("*") && !isMemberOf(professor.name, allowedProfessors)) {
         return res.status(403).json({
           error: "You can only review professors who have taught you.",
         });
@@ -116,6 +116,8 @@ router.post("/", verifyToken, checkProfanity, async (req, res) => {
 });
 
 // GET /reviews/:professorId — Get reviews for a professor
+
+
 router.get("/:professorId", async (req, res) => {
   try {
     const { professorId } = req.params;
@@ -151,16 +153,16 @@ router.get("/:professorId", async (req, res) => {
       reviews = await Review.find({
         professorId,
         $or: [
-          { isHidden: false },
+          { isHidden: { $ne: true } },
           { isHidden: true, studentHash: requestingStudentHash },
         ],
       }).sort({ createdAt: -1 });
     } else {
-      reviews = await Review.find({ professorId, isHidden: false }).sort({ createdAt: -1 });
+      reviews = await Review.find({ professorId, isHidden: { $ne: true } }).sort({ createdAt: -1 });
     }
 
     // Breakdown only from visible reviews
-    const visibleReviews = reviews.filter(r => !r.isHidden);
+    const visibleReviews = reviews.filter(r => r.isHidden !== true);
     const count = visibleReviews.length;
     let breakdown = null;
 

@@ -17,8 +17,6 @@ router.post("/", verifyToken, async (req, res) => {
       campus,
       department,
       courses,
-      priority,
-      lastInteractionDate,
       additionalComments,
       submittedBy: req.user.username,
     });

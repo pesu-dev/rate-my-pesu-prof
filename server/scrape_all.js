@@ -1,15 +1,3 @@
-/**
- * scrape_all.js
- *
- * One-time script to scrape and populate the professor directory from staff.pes.edu.
- * Iterates over all campuses and departments and upserts professor records into MongoDB.
- *
- * Usage:
- *   node server/scrape_all.js
- *
- * Ensure MONGODB_URI is set in server/.env before running.
- */
-
 require("dotenv").config();
 const mongoose = require("mongoose");
 const { scrapeProfessors } = require("./services/scraper");
