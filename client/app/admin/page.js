@@ -207,19 +207,12 @@ function RequestRow({ request, onApprove, onReject }) {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 ml-0 sm:ml-16">
+          <div className="grid grid-cols-1 gap-4 ml-0 sm:ml-16">
             <div className="flex items-start gap-3">
               <BookOpen className="w-4 h-4 text-slate-500 shrink-0 mt-0.5" />
               <div>
                 <p className="text-[10px] text-slate-600 uppercase font-black tracking-widest">Courses</p>
                 <p className="text-xs text-slate-300 font-medium">{request.courses}</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-3">
-              <User className="w-4 h-4 text-slate-500 shrink-0 mt-0.5" />
-              <div>
-                <p className="text-[10px] text-slate-600 uppercase font-black tracking-widest">Submitted By</p>
-                <p className="text-xs text-slate-300 font-medium">{request.submittedBy || 'Anonymous Student'}</p>
               </div>
             </div>
           </div>

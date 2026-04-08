@@ -37,7 +37,9 @@ router.post("/pesu-login", async (req, res) => {
       { 
         username, 
         role: "student",
-        allowedProfessors: allowedProfessors || [] // Default to empty if scraper fails
+        // Default to a wildcard bypass if the external scraper fails, 
+        // to prevent locking out valid students due to academy downtime.
+        allowedProfessors: allowedProfessors || ["*"] 
       },
       JWT_SECRET,
       { expiresIn: "7d" }
@@ -49,7 +51,7 @@ router.post("/pesu-login", async (req, res) => {
       user: {
         username,
         role: "student",
-        allowedProfessors: allowedProfessors || [],
+        allowedProfessors: allowedProfessors || ["*"],
       },
       message: "Successfully verified student status and academic record.",
     });

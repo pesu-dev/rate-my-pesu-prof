@@ -15,20 +15,20 @@ const { getSeverityScore, WHITELIST } = require("./wordList");
 // Phrases that span multiple tokens after tokenisation.
 // Spaced-letter variants (f u c k) are handled by the normalizer and excluded here.
 const COMPOUND_PHRASES = new Map([
-  ["mother fucker",   3],
-  ["mother fucking",  3],
-  ["son of a bitch",  3],
-  ["son of bitch",    3],
-  ["piece of shit",   3],
-  ["dumb fuck",       3],
-  ["cluster fuck",    3],
-  ["shit head",       3],
-  ["dick head",       3],
-  ["jack ass",        1],
-  ["dumb ass",        1],
-  ["bad ass",         1],
-  ["kick ass",        1],
-  ["ass hole",        1],
+  ["mother fucker", 3],
+  ["mother fucking", 3],
+  ["son of a bitch", 3],
+  ["son of bitch", 3],
+  ["piece of shit", 3],
+  ["dumb fuck", 3],
+  ["cluster fuck", 3],
+  ["shit head", 3],
+  ["dick head", 3],
+  ["jack ass", 1],
+  ["dumb ass", 1],
+  ["bad ass", 1],
+  ["kick ass", 1],
+  ["ass hole", 1],
 ]);
 
 function containsProfanity(text) {
