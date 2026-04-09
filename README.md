@@ -12,6 +12,7 @@ An anonymous professor rating platform built for PES University students. Studen
 | Backend | Node.js, Express |
 | Database | MongoDB Atlas (mongoose) |
 | Auth | JWT, PESU-Auth API, PESU Academy scraper |
+| Sentiment Analysis | Nvidia NIM / Nebius LLM API (OpenAI-compatible) |
 | Deployment | Render (server), Vercel (client) |
 
 ---
@@ -35,7 +36,7 @@ RateMyProf_PES-Edition/
     ├── models/                 # Mongoose schemas (Professor, Review, User)
     ├── routes/                 # Express route handlers
     │   ├── auth.js             # PESU SSO + admin login
-    │   ├── reviews.js          # CRUD reviews (with shadow ban enforcement)
+    │   ├── reviews.js          # CRUD reviews (shadow ban + sentiment)
     │   ├── professors.js       # Professor catalog
     │   ├── requests.js         # Community professor addition requests
     │   └── admin.js            # Admin moderation panel API
@@ -43,13 +44,16 @@ RateMyProf_PES-Edition/
     │   ├── auth.js             # verifyToken, isAdmin
     │   ├── profanityMiddleware.js  # Full profanity detection middleware
     │   └── profanityFilter.js  # Legacy shim (backward compat)
+    ├── scripts/
+    │   └── backfillSentiment.js  # One-time script to analyze existing reviews
     ├── services/               # External integrations + business logic
     │   ├── academyService.js   # PESU Academy scraper
     │   ├── scraper.js          # Staff directory scraper
     │   └── trustService.js     # Trust score + shadow ban logic
     └── utils/
-        ├── aggregateCalculator.js  # Professor rating aggregation
+        ├── aggregateCalculator.js  # Professor rating aggregation (incl. sentiment)
         ├── fuzzyMatcher.js     # Fuzzy name matching
+        ├── sentimentAnalyzer.js  # LLM-powered sentiment analysis utility
         └── profanity/          # Modular profanity detection engine
             ├── wordList.js     # Tiered word list (extreme/strong/mild + whitelist)
             ├── normalize.js    # Anti-bypass text normalisation
@@ -76,7 +80,16 @@ Create a file at `server/.env` with the following:
 MONGODB_URI=mongodb+srv://<user>:<password>@<cluster>.mongodb.net/<dbname>
 PORT=5000
 JWT_SECRET=<a_long_random_secret_string>
+
+# ─── Sentiment Analysis (LLM API) ───────────────────────────────────────────
+# Compatible with Nvidia NIM, Nebius, or any OpenAI-compatible endpoint
+# Get a free Nvidia key at: https://build.nvidia.com/meta/llama-3_1-8b-instruct
+LLM_API_KEY=nvapi-xxxxxxxxxxxxxxxxxxxx
+LLM_API_URL=https://integrate.api.nvidia.com/v1
+LLM_MODEL=meta/llama-3.1-8b-instruct
 ```
+
+> **Note:** If `LLM_API_KEY` is not set or is invalid, sentiment analysis gracefully defaults to `neutral` — the app remains fully functional.
 
 #### Optional Moderation Tuning
 
@@ -122,7 +135,7 @@ The backend runs on `http://localhost:5000` and the frontend on `http://localhos
 
 ## Populating the Professor Database
 
-The professor directory is scraped from [staff.pes.edu](https://staff.pes.edu). 
+The professor directory is scraped from [staff.pes.edu](https://staff.pes.edu).
 Run this once after setting up your database:
 
 ```bash
@@ -137,6 +150,34 @@ This iterates over all departments on both EC and RR campuses and upserts profes
 
 1. Student enters their PESU SRN and password on the login page.
 2. The backend verifies credentials via the [PESU-Auth API](https://pesu-auth.onrender.com).
+
+---
+
+## Sentiment Analysis
+
+Every text review is analyzed by an LLM to determine the emotional tone of the student's written feedback.
+
+### How It Works
+
+1. When a review is submitted (or edited), `reviewText` is sent to the configured LLM API endpoint (`/v1/chat/completions`).
+2. The model returns a **score** between `-1.0` (very negative) and `+1.0` (very positive) and a **label** (`positive`, `neutral`, or `negative`).
+3. These are stored on the `Review` document as `sentimentScore` and `sentimentLabel`.
+4. The professor's `averageSentimentScore` is recomputed across all visible reviews with text after every submission.
+
+### Frontend Display
+
+- **Review cards** — each review with text shows a sentiment badge (😊 Positive / 😐 Neutral / 😞 Negative).
+- **Rating breakdown panel** — a "Review Sentiment" bar slides from Negative ↔ Positive based on the professor's average.
+
+### Backfilling Existing Reviews
+
+To analyze all reviews already in the database, run from inside the `server/` directory:
+
+```bash
+node scripts/backfillSentiment.js
+```
+
+This processes all reviews with text, skips those without, and recalculates professor aggregates on completion.
 
 ---
 
@@ -190,6 +231,7 @@ Admins can:
 | Script | Description |
 |---|---|
 | `node server/scrape_all.js` | Scrapes staff.pes.edu and populates the professor collection |
+| `node scripts/backfillSentiment.js` | Retroactively runs sentiment analysis on all existing reviews |
 | `npm run dev` (server) | Starts the Express dev server with hot reload |
 | `npm run dev` (client) | Starts the Next.js dev server |
 | `npm run build` (client) | Builds the production Next.js bundle |
