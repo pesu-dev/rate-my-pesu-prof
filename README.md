@@ -20,7 +20,7 @@ An anonymous professor rating platform built for PES University students. Studen
 ## Project Structure
 
 ```
-RateMyProf_PES-Edition/
+rate-my-pesu-prof/
 ├── client/                     # Next.js frontend
 │   ├── app/                    # App Router pages
 │   │   ├── page.js             # Home / professor catalog
