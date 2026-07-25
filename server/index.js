@@ -79,14 +79,32 @@ async function startServer() {
 }
 
 async function seedDatabase() {
+  // ── Never seed in production — admin accounts must be created manually ──
+  if (process.env.NODE_ENV === "production") {
+    console.log("Production mode: skipping database seeding.");
+    return;
+  }
+
   try {
     const User = require("./models/User");
-    const adminExists = await User.findOne({ username: "ssmeduri" });
-    if (!adminExists) {
-      console.log("Seeding admin account...");
-      const bcrypt = require("bcryptjs");
-      const hashed = await bcrypt.hash("Lallantaap@123", 10);
-      await User.create({ username: "ssmeduri", password: hashed, role: "admin" });
+
+    const adminUsername = process.env.SEED_ADMIN_USERNAME;
+    const adminPassword = process.env.SEED_ADMIN_PASSWORD;
+
+    if (!adminUsername || !adminPassword) {
+      console.warn(
+        "Skipping admin seed: SEED_ADMIN_USERNAME or SEED_ADMIN_PASSWORD " +
+        "not set in .env. Add them to create a local admin account."
+      );
+    } else {
+      const adminExists = await User.findOne({ username: adminUsername });
+      if (!adminExists) {
+        console.log(`Seeding admin account '${adminUsername}'...`);
+        const bcrypt = require("bcryptjs");
+        const hashed = await bcrypt.hash(adminPassword, 10);
+        await User.create({ username: adminUsername, password: hashed, role: "admin" });
+        console.log("Admin account created.");
+      }
     }
 
     const Professor = require("./models/Professor");

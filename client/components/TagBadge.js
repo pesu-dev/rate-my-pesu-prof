@@ -2,21 +2,21 @@
 
 // TagBadge – styled pill for review tags
 const TAG_COLORS = {
-  chill: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
-  strict: "bg-red-500/20 text-red-400 border-red-500/30",
-  "slides reader": "bg-blue-500/20 text-blue-400 border-blue-500/30",
-  "easy grader": "bg-green-500/20 text-green-400 border-green-500/30",
-  "tough grader": "bg-orange-500/20 text-orange-400 border-orange-500/30",
-  inspiring: "bg-purple-500/20 text-purple-400 border-purple-500/30",
-  boring: "bg-gray-500/20 text-gray-400 border-gray-500/30",
-  helpful: "bg-cyan-500/20 text-cyan-400 border-cyan-500/30",
-  "attendance mandatory": "bg-yellow-500/20 text-yellow-400 border-yellow-500/30",
-  "gives notes": "bg-teal-500/20 text-teal-400 border-teal-500/30",
-  "no attendance": "bg-lime-500/20 text-lime-400 border-lime-500/30",
-  "practical focused": "bg-indigo-500/20 text-indigo-400 border-indigo-500/30",
+  chill: "bg-emerald-50 text-emerald-700 border-emerald-200",
+  strict: "bg-red-50 text-red-700 border-red-200",
+  "slides reader": "bg-blue-50 text-blue-700 border-blue-200",
+  "easy grader": "bg-green-50 text-green-700 border-green-200",
+  "tough grader": "bg-orange-50 text-orange-700 border-orange-200",
+  inspiring: "bg-violet-50 text-violet-700 border-violet-200",
+  boring: "bg-gray-100 text-gray-600 border-gray-200",
+  helpful: "bg-cyan-50 text-cyan-700 border-cyan-200",
+  "attendance mandatory": "bg-yellow-50 text-yellow-700 border-yellow-200",
+  "gives notes": "bg-teal-50 text-teal-700 border-teal-200",
+  "no attendance": "bg-lime-50 text-lime-700 border-lime-200",
+  "practical focused": "bg-sky-50 text-sky-700 border-sky-200",
 };
 
-const DEFAULT_COLOR = "bg-slate-500/20 text-slate-400 border-slate-500/30";
+const DEFAULT_COLOR = "bg-gray-100 text-gray-600 border-gray-200";
 
 export default function TagBadge({ tag, selected, onClick }) {
   const colorClass = TAG_COLORS[tag] || DEFAULT_COLOR;
@@ -27,11 +27,8 @@ export default function TagBadge({ tag, selected, onClick }) {
       <button
         type="button"
         onClick={() => onClick(tag)}
-        className={`${baseClasses} cursor-pointer hover:scale-105 ${
-          selected
-            ? colorClass + " ring-1 ring-white/20"
-            : "bg-gray-800/50 text-gray-500 border-gray-700 hover:border-gray-500"
-        }`}
+        className={`${baseClasses} cursor-pointer hover:scale-105 ${selected ? colorClass + " ring-1 ring-white/20" : ""}`}
+        style={!selected ? { background: "var(--surface2)", color: "var(--subtle)", borderColor: "var(--border)" } : {}}
       >
         {tag}
       </button>

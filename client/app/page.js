@@ -1,21 +1,10 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import ProfessorCard from "../components/ProfessorCard";
 import RequestProfessorModal from "../components/RequestProfessorModal";
 import { fetchProfessors } from "../lib/api";
-import { AlertCircle, ChevronLeft, ChevronRight } from "lucide-react";
-
-// Available tags for filtering (same as TagBadge)
-const FILTER_TAGS = [
-  "chill",
-  "strict",
-  "inspiring",
-  "helpful",
-  "boring",
-  "easy grader",
-  "tough grader",
-];
+import { AlertCircle, ChevronLeft, ChevronRight, Search, GraduationCap, Star } from "lucide-react";
 
 const DEPARTMENTS = [
   "Architecture", "Biotechnology", "Civil", "Commerce", "Computer Application",
@@ -23,6 +12,48 @@ const DEPARTMENTS = [
   "Electronics & Communications", "Law", "Management Studies", "Mechanical",
   "Pharmaceutical Sciences", "Psychology", "Science & Humanities"
 ];
+
+const CAMPUS_OPTIONS = ["All", "EC Campus", "RR Campus"];
+const RATING_OPTIONS = [
+  { label: "Any Rating", value: 0 },
+  { label: "2+ ★", value: 2 },
+  { label: "3+ ★", value: 3 },
+  { label: "4+ ★", value: 4 },
+];
+
+function SkeletonCard() {
+  return (
+    <div className="bg-white border border-outline-variant/40 rounded-2xl p-6 space-y-4 editorial-shadow">
+      <div className="flex items-start justify-between">
+        <div className="flex-1 space-y-2.5">
+          <div className="skeleton h-4 w-3/4" />
+          <div className="skeleton h-3 w-1/2" />
+        </div>
+        <div className="skeleton w-11 h-11 rounded-xl ml-4 flex-shrink-0" />
+      </div>
+      <div className="skeleton h-3 w-2/5" />
+      <div className="border-t border-outline-variant/30" />
+      <div className="flex gap-2">
+        <div className="skeleton h-5 w-16 rounded-md" />
+        <div className="skeleton h-5 w-20 rounded-md" />
+        <div className="skeleton h-5 w-14 rounded-md" />
+      </div>
+    </div>
+  );
+}
+
+function StatPill({ icon: Icon, value, label, delay }) {
+  return (
+    <div
+      className="fade-up inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full bg-white border border-outline-variant/50 editorial-shadow"
+      style={{ animationDelay: delay, opacity: 0, animationFillMode: "forwards" }}
+    >
+      <Icon className="w-3.5 h-3.5" style={{ color: "var(--accent-l)" }} />
+      <span className="text-sm font-semibold text-on-surface">{value}</span>
+      <span className="text-xs text-outline">{label}</span>
+    </div>
+  );
+}
 
 export default function HomePage() {
   const [professors, setProfessors] = useState([]);
@@ -33,248 +64,294 @@ export default function HomePage() {
   const [selectedCampus, setSelectedCampus] = useState("All");
   const [error, setError] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
-
-  // Pagination state
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalFound, setTotalFound] = useState(0);
+  const [totalProfessors, setTotalProfessors] = useState(null);
   const limit = 12;
 
-  // Reset to page 1 when filters or search change
   useEffect(() => {
-    setPage(1);
-  }, [search, minRating, selectedDepartment, selectedCampus]);
+    fetchProfessors({ limit: 1, page: 1 })
+      .then(d => setTotalProfessors(d.total))
+      .catch(() => {});
+  }, []);
 
-  // Fetch professors on mount and when search/filters change
+  useEffect(() => { setPage(1); }, [search, minRating, selectedDepartment, selectedCampus]);
+
   useEffect(() => {
     const load = async () => {
-      setLoading(true);
-      setError("");
+      setLoading(true); setError("");
       try {
-        const params = {};
+        const params = { page, limit };
         if (search.trim()) params.search = search.trim();
         if (minRating > 0) params.minRating = minRating;
         if (selectedDepartment !== "All") params.department = selectedDepartment;
         if (selectedCampus !== "All") params.campus = selectedCampus;
-        
-        // Add pagination params
-        params.page = page;
-        params.limit = limit;
-        
         const data = await fetchProfessors(params);
         setProfessors(data.professors);
         setTotalPages(data.pages);
         setTotalFound(data.total);
-      } catch (err) {
+      } catch {
         setError("Failed to load professors. Is the backend running?");
       } finally {
         setLoading(false);
       }
     };
-
-    // Debounce search input
-    const timer = setTimeout(load, page === 1 ? 50 : 300); // Faster load for page changes
+    const timer = setTimeout(load, page === 1 ? 50 : 300);
     return () => clearTimeout(timer);
   }, [search, minRating, selectedDepartment, selectedCampus, page]);
 
+  const hasActiveFilters = search || minRating > 0 || selectedDepartment !== "All" || selectedCampus !== "All";
+
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* Hero section */}
-      <div className="text-center mb-10">
-        <h1 className="text-4xl sm:text-5xl font-bold bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent mb-3">
-          Rate My Prof
-        </h1>
-        <p className="text-lg text-gray-400 max-w-2xl mx-auto">
-          PES Edition — Find and rate your professors. Anonymous, honest, and
-          helpful.
-        </p>
-      </div>
+    <div className="min-h-screen" style={{ background: "#F8F9FA", color: "var(--text)" }}>
 
-      {/* Search and filters */}
-      <div className="max-w-4xl mx-auto mb-8 space-y-4">
-        {/* Search bar */}
-        <div className="relative">
-          <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-            <svg
-              className="w-5 h-5 text-gray-500"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-              />
-            </svg>
+      {/* ── Hero ──────────────────────────────────────────────── */}
+      <section className="relative pt-16 pb-14 overflow-hidden" style={{ background: "#F8F9FA" }}>
+        <div className="hero-aurora" />
+
+        <div className="relative z-10 max-w-3xl mx-auto px-4 text-center">
+          {/* Eyebrow label */}
+          <div
+            className="fade-up inline-flex items-center gap-2 mb-7 px-4 py-1.5 rounded-full text-xs font-semibold tracking-widest uppercase"
+            style={{
+              border: "1px solid var(--accent-border)",
+              background: "var(--accent-bg)",
+              color: "var(--accent)",
+              animationDelay: "0s", animationFillMode: "forwards",
+            }}
+          >
+            <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: "var(--accent)" }} />
+            PES University · Student Reviews
           </div>
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search professors by name..."
-            className="w-full bg-gray-900/60 border border-gray-800 rounded-xl pl-12 pr-4 py-3.5 text-sm text-gray-200 placeholder-gray-600 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/50 transition-colors"
+
+          {/* Heading */}
+          <h1
+            className="fade-up font-black tracking-tight mb-2 leading-[1.05]"
+            style={{
+              fontSize: "clamp(3rem, 9vw, 5.5rem)",
+              color: "var(--text)",
+              letterSpacing: "-0.03em",
+              animationDelay: "0.08s", opacity: 0, animationFillMode: "forwards",
+            }}
+          >
+            Rate My Prof
+          </h1>
+          {/* Indigo underline accent */}
+          <div
+            className="fade-up mx-auto rounded-full mb-7"
+            style={{
+              width: 64, height: 3,
+              background: "var(--accent)",
+              animationDelay: "0.13s", opacity: 0, animationFillMode: "forwards",
+            }}
           />
+
+          <p
+            className="fade-up text-base sm:text-lg leading-relaxed mb-10 max-w-lg mx-auto"
+            style={{
+              color: "var(--muted)",
+              animationDelay: "0.16s", opacity: 0, animationFillMode: "forwards",
+            }}
+          >
+            Honest, anonymous professor reviews by real PES students. Find your
+            professor and make informed choices.
+          </p>
+
+          {/* Stat pills */}
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            <StatPill icon={GraduationCap} value={totalProfessors ? `${totalProfessors}+` : "…"} label="professors" delay="0.22s" />
+            <StatPill icon={Star} value="Anonymous" label="verified reviews" delay="0.28s" />
+          </div>
         </div>
+      </section>
 
-        {/* Dropdown Filters */}
-        <div className="flex flex-col sm:flex-row gap-4 items-center">
-          
-          <div className="flex-1 w-full">
-            <select
-              value={minRating}
-              onChange={(e) => setMinRating(Number(e.target.value))}
-              className="w-full bg-gray-900/60 border border-gray-800 rounded-xl px-4 py-3 text-sm text-gray-200 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/50 transition-colors outline-none cursor-pointer"
-            >
-              <option value={0}>All Ratings</option>
-              <option value={1}>1+ Stars</option>
-              <option value={2}>2+ Stars</option>
-              <option value={3}>3+ Stars</option>
-              <option value={4}>4+ Stars</option>
-            </select>
+      {/* ── Search & Filters ───────────────────────────────────── */}
+      <div className="max-w-5xl mx-auto px-4 mb-10">
+        <div
+          className="rounded-2xl p-4 sm:p-5 space-y-4 bg-white editorial-shadow"
+          style={{ border: "1px solid var(--border)" }}
+        >
+          {/* Search */}
+          <div className="relative">
+            <Search
+              className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none"
+              style={{ color: "var(--subtle)" }}
+            />
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search professors by name…"
+              style={{
+                background: "var(--surface2)",
+                borderColor: "var(--border)",
+                color: "var(--text)",
+              }}
+              className="w-full border rounded-xl pl-11 pr-4 py-3 text-sm focus:outline-none transition-all"
+              onFocus={e => e.target.style.borderColor = "var(--accent-border)"}
+              onBlur={e => e.target.style.borderColor = "var(--border)"}
+            />
           </div>
 
-          <div className="flex-1 w-full">
-            <select
-              value={selectedCampus}
-              onChange={(e) => setSelectedCampus(e.target.value)}
-              className="w-full bg-gray-900/60 border border-gray-800 rounded-xl px-4 py-3 text-sm text-gray-200 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/50 transition-colors outline-none cursor-pointer"
-            >
-              <option value="All">All Campuses</option>
-              <option value="RR Campus">RR Campus</option>
-              <option value="EC Campus">EC Campus</option>
-            </select>
-          </div>
+          {/* Filters */}
+          <div className="flex flex-wrap gap-2.5 items-center">
+            {/* Campus chips */}
+            {CAMPUS_OPTIONS.map(c => (
+              <button key={c} onClick={() => setSelectedCampus(c)}
+                className={`px-3.5 py-1.5 rounded-full border text-xs font-medium transition-all cursor-pointer ${selectedCampus === c ? "chip-active" : "chip-inactive"}`}>
+                {c === "All" ? "All Campuses" : c}
+              </button>
+            ))}
 
-          <div className="flex-1 w-full">
+            <div className="w-px h-4 hidden sm:block" style={{ background: "var(--border2)" }} />
+
+            {/* Rating chips */}
+            {RATING_OPTIONS.map(r => (
+              <button key={r.value} onClick={() => setMinRating(r.value)}
+                className={`px-3.5 py-1.5 rounded-full border text-xs font-medium transition-all cursor-pointer ${minRating === r.value ? "chip-active" : "chip-inactive"}`}>
+                {r.label}
+              </button>
+            ))}
+
+            <div className="w-px h-4 hidden sm:block" style={{ background: "var(--border2)" }} />
+
+            {/* Department */}
             <select
               value={selectedDepartment}
               onChange={(e) => setSelectedDepartment(e.target.value)}
-              className="w-full bg-gray-900/60 border border-gray-800 rounded-xl px-4 py-3 text-sm text-gray-200 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/50 transition-colors outline-none cursor-pointer"
+              style={{ background: "var(--surface2)", borderColor: "var(--border)", color: "var(--muted)" }}
+              className="border rounded-xl px-3 py-1.5 text-xs focus:outline-none cursor-pointer transition-all"
             >
               <option value="All">All Departments</option>
-              {DEPARTMENTS.map(dept => (
-                <option key={dept} value={dept}>{dept}</option>
-              ))}
+              {DEPARTMENTS.map(d => <option key={d} value={d}>{d}</option>)}
             </select>
-          </div>
 
+            {/* Clear */}
+            {hasActiveFilters && (
+              <button
+                onClick={() => { setSearch(""); setMinRating(0); setSelectedDepartment("All"); setSelectedCampus("All"); }}
+                className="ml-auto text-xs transition-colors cursor-pointer"
+                style={{ color: "var(--subtle)" }}
+                onMouseEnter={e => e.target.style.color = "#ef4444"}
+                onMouseLeave={e => e.target.style.color = "var(--subtle)"}
+              >
+                ✕ Clear
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* Error state */}
-      {error && (
-        <div className="max-w-3xl mx-auto mb-6 bg-red-500/10 border border-red-500/30 rounded-xl px-6 py-4 text-center">
-          <p className="text-sm text-red-400">{error}</p>
-          <p className="text-xs text-gray-600 mt-1">
-            Make sure MongoDB is running and the server is started on port 5000
-          </p>
-        </div>
-      )}
+      {/* ── Results ────────────────────────────────────────────── */}
+      <div className="max-w-7xl mx-auto px-4 pb-20">
+        {error && (
+          <div className="max-w-lg mx-auto mb-8 rounded-2xl px-6 py-5 text-center"
+            style={{ background: "rgba(239,68,68,0.06)", border: "1px solid rgba(239,68,68,0.18)" }}>
+            <p className="text-sm font-medium" style={{ color: "#dc2626" }}>{error}</p>
+            <p className="text-xs mt-1" style={{ color: "var(--subtle)" }}>Make sure the server is running on port 5000</p>
+          </div>
+        )}
 
-      {/* Loading state */}
-      {loading && (
-        <div className="flex justify-center py-20">
-          <div className="w-10 h-10 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
-        </div>
-      )}
-
-      {/* Professor grid */}
-      {!loading && !error && (
-        <>
-          <div className="flex items-center justify-between mb-4 max-w-3xl mx-auto lg:max-w-none">
-            <p className="text-sm text-gray-500">
-              Showing page {page} of {totalPages} ({totalFound} total)
+        {!loading && !error && (
+          <div className="mb-5">
+            <p className="text-xs" style={{ color: "var(--subtle)" }}>
+              <span style={{ color: "var(--muted)", fontWeight: 600 }}>{totalFound}</span>{" "}
+              {hasActiveFilters ? "professors found" : `professors · page ${page} of ${totalPages}`}
             </p>
           </div>
-          {professors.length === 0 ? (
-            <div className="text-center py-20">
-              <p className="text-xl text-gray-500 mb-2">No professors found</p>
-              <p className="text-sm text-gray-600">
-                Try adjusting your search or filters
-              </p>
+        )}
+
+        {/* Skeleton */}
+        {loading && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[...Array(6)].map((_, i) => <SkeletonCard key={i} />)}
+          </div>
+        )}
+
+        {/* Empty */}
+        {!loading && !error && professors.length === 0 && (
+          <div className="text-center py-24">
+            <div className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4 bg-white editorial-shadow"
+              style={{ border: "1px solid var(--border)" }}>
+              <Search className="w-5 h-5" style={{ color: "var(--subtle)" }} />
             </div>
-          ) : (
-            <>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {professors.map((prof) => (
-                  <ProfessorCard key={prof._id} professor={prof} />
-                ))}
-              </div>
+            <p className="text-base font-semibold mb-1" style={{ color: "var(--muted)" }}>No professors found</p>
+            <p className="text-sm" style={{ color: "var(--subtle)" }}>Try adjusting your search or clearing filters</p>
+          </div>
+        )}
 
-              {/* Pagination Controls */}
-              {totalPages > 1 && (
-                <div className="mt-12 flex items-center justify-center gap-2">
-                  <button
-                    disabled={page === 1}
-                    onClick={() => setPage(p => p - 1)}
-                    className="p-2.5 rounded-xl bg-gray-900 border border-gray-800 text-gray-400 hover:text-white hover:bg-gray-800 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-                  >
-                    <ChevronLeft className="w-5 h-5" />
-                  </button>
-                  
-                  <div className="flex items-center gap-1">
-                    {[...Array(totalPages)].map((_, i) => {
-                      const pNum = i + 1;
-                      // Logic to show only adjacent pages if many
-                      if (
-                        totalPages > 7 &&
-                        pNum !== 1 &&
-                        pNum !== totalPages &&
-                        Math.abs(pNum - page) > 1
-                      ) {
-                        if (pNum === page - 2 || pNum === page + 2) return <span key={pNum} className="px-1 text-gray-600">...</span>;
-                        return null;
-                      }
+        {/* Grid */}
+        {!loading && !error && professors.length > 0 && (
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {professors.map((prof, i) => (
+                <ProfessorCard key={prof._id} professor={prof} index={i} />
+              ))}
+            </div>
 
-                      return (
-                        <button
-                          key={pNum}
-                          onClick={() => setPage(pNum)}
-                          className={`
-                            min-w-[40px] h-10 rounded-xl font-bold text-sm transition-all
-                            ${page === pNum 
-                              ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-900/20' 
-                              : 'bg-gray-900 border border-gray-800 text-gray-400 hover:bg-gray-800 hover:text-white'}
-                          `}
-                        >
-                          {pNum}
-                        </button>
-                      );
-                    })}
-                  </div>
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="mt-12 flex items-center justify-center gap-2">
+                <button disabled={page === 1} onClick={() => setPage(p => p - 1)}
+                  className="p-2.5 rounded-xl transition-all cursor-pointer disabled:opacity-25 disabled:cursor-not-allowed bg-white editorial-shadow"
+                  style={{ border: "1px solid var(--border)", color: "var(--muted)" }}>
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
 
-                  <button
-                    disabled={page === totalPages}
-                    onClick={() => setPage(p => p + 1)}
-                    className="p-2.5 rounded-xl bg-gray-900 border border-gray-800 text-gray-400 hover:text-white hover:bg-gray-800 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-                  >
-                    <ChevronRight className="w-5 h-5" />
-                  </button>
+                <div className="flex items-center gap-1">
+                  {[...Array(totalPages)].map((_, i) => {
+                    const pNum = i + 1;
+                    if (totalPages > 7 && pNum !== 1 && pNum !== totalPages && Math.abs(pNum - page) > 1) {
+                      if (pNum === page - 2 || pNum === page + 2)
+                        return <span key={pNum} className="px-1 text-sm" style={{ color: "var(--subtle)" }}>…</span>;
+                      return null;
+                    }
+                    return (
+                      <button key={pNum} onClick={() => setPage(pNum)}
+                        className="min-w-[36px] h-9 rounded-lg text-sm font-semibold transition-all cursor-pointer"
+                        style={page === pNum
+                          ? { background: "var(--accent)", color: "#fff", boxShadow: "0 4px 14px rgba(53,37,205,0.30)" }
+                          : { background: "#fff", border: "1px solid var(--border)", color: "var(--muted)" }}>
+                        {pNum}
+                      </button>
+                    );
+                  })}
                 </div>
-              )}
-            </>
-          )}
-        </>
-      )}
 
-      {/* Missing Professor Link */}
-      <div className="mt-16 text-center border-t border-gray-800/60 pt-8 pb-12">
-        <p className="text-gray-400 text-sm mb-3">Can't find your professor in the directory?</p>
-        <button 
-          onClick={() => setIsModalOpen(true)}
-          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gray-900/80 hover:bg-gray-800 text-gray-300 hover:text-white transition-all border border-gray-700 hover:border-gray-500 text-sm font-medium shadow-sm cursor-pointer"
-        >
-          <AlertCircle className="w-4 h-4 text-amber-400" />
-          Missing Professor? Report Here
-        </button>
+                <button disabled={page === totalPages} onClick={() => setPage(p => p + 1)}
+                  className="p-2.5 rounded-xl transition-all cursor-pointer disabled:opacity-25 disabled:cursor-not-allowed bg-white editorial-shadow"
+                  style={{ border: "1px solid var(--border)", color: "var(--muted)" }}>
+                  <ChevronRight className="w-5 h-5" />
+                </button>
+              </div>
+            )}
+          </>
+        )}
       </div>
 
-      <RequestProfessorModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-      />
+      {/* ── Footer CTA ────────────────────────────────────────── */}
+      <div style={{ borderTopColor: "var(--border)" }} className="border-t bg-white">
+        <div className="max-w-xl mx-auto text-center px-4 py-12">
+          <p className="text-sm mb-4" style={{ color: "var(--subtle)" }}>
+            Can't find your professor in the directory?
+          </p>
+          <button onClick={() => setIsModalOpen(true)}
+            className="inline-flex items-center gap-2.5 px-6 py-2.5 rounded-xl text-sm font-medium transition-all cursor-pointer bg-white editorial-shadow"
+            style={{
+              border: "1px solid var(--border)",
+              color: "var(--muted)",
+            }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = "var(--accent-border)"; e.currentTarget.style.color = "var(--text)"; }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = "var(--border)"; e.currentTarget.style.color = "var(--muted)"; }}
+          >
+            <AlertCircle className="w-4 h-4" style={{ color: "var(--amber)" }} />
+            Report a Missing Professor
+          </button>
+        </div>
+      </div>
+
+      <RequestProfessorModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </div>
   );
 }

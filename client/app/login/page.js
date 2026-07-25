@@ -1,54 +1,39 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { HelpCircle } from "lucide-react";
 import Link from "next/link";
 import { setToken } from "../../lib/auth";
-import { ShieldCheck, Lock, Fingerprint, ExternalLink, Shield, HelpCircle } from "lucide-react";
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const router = useRouter();
+  const [showTip, setShowTip] = useState(false);
+  const [accepted, setAccepted] = useState(false);
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    setError("");
-
+    setLoading(true); setError("");
     try {
       const { API_BASE } = require("../../lib/api");
-      
-      // Smart routing: Check if the user is a Student (SRN) or an Admin
-      // PESU SRNs typically start with "PES"
       const isStudent = username.toUpperCase().startsWith("PES");
-      const authEndpoint = isStudent ? "/api/auth/pesu-login" : "/api/auth/login";
-
-      const res = await fetch(`${API_BASE}${authEndpoint}`, {
+      const endpoint = isStudent ? "/api/auth/pesu-login" : "/api/auth/login";
+      const res = await fetch(`${API_BASE}${endpoint}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),
       });
-
       const data = await res.json();
-
       if (res.ok && data.success) {
         setToken(data.token, data.user);
-        
-        // Redirect based on role
-        if (data.user.role === "admin") {
-          window.location.href = "/admin";
-        } else {
-          const searchParams = new URLSearchParams(window.location.search);
-          const redirect = searchParams.get("redirect");
-          window.location.href = redirect || "/";
-        }
+        const redirect = new URLSearchParams(window.location.search).get("redirect");
+        window.location.href = data.user.role === "admin" ? "/admin" : (redirect || "/");
       } else {
         setError(data.error || "Authentication failed. Please check your credentials.");
       }
-    } catch (err) {
+    } catch {
       setError("Network error. Make sure the backend is running.");
     } finally {
       setLoading(false);
@@ -56,124 +41,219 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="max-w-md mx-auto py-16 px-4">
-      <div className="bg-gray-900/60 border border-gray-800 rounded-2xl p-8 shadow-xl">
-        <h2 className="text-2xl font-bold text-white mb-2 text-center">Sign In</h2>
-        <div className="flex items-center justify-center gap-2 mb-8">
-          <p className="text-gray-400 text-center text-sm">
-            Please sign in with your PESU credentials to continue.
-          </p>
-          <div className="group relative">
-            <HelpCircle className="w-4 h-4 text-gray-500 hover:text-indigo-400 cursor-help transition-colors" />
-            <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-48 p-2 bg-gray-800 border border-gray-700 rounded-lg text-[10px] text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-20 shadow-2xl text-center">
-              We use PESU credentials to prevent spam and ensure reviews come from verified PES students.
-              <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-800"></div>
-            </div>
-          </div>
-        </div>
+    <div
+      className="min-h-screen flex items-center justify-center px-4 py-16 relative overflow-hidden"
+      style={{ background: "#F8F9FA" }}
+    >
+      {/* Subtle aurora background */}
+      <div className="hero-aurora" />
 
-        {error && (
-          <div className="bg-red-500/10 border border-red-500/30 text-red-400 text-sm p-3 rounded-lg mb-6 text-center">
-            {error}
-          </div>
-        )}
+      <div className="relative z-10 w-full max-w-md">
 
-        <form onSubmit={handleLogin} className="space-y-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
-              PESU SRN
-            </label>
-            <input
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/50 transition-colors"
-              placeholder="e.g. PES1..."
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
-              Password
-            </label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/50 transition-colors"
-              placeholder="••••••••"
-              required
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className={`w-full font-medium py-3 px-4 rounded-xl transition-all ${
-              loading
-                ? "bg-indigo-600/50 cursor-not-allowed text-white/70"
-                : "bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-500/25 active:scale-[0.98]"
-            }`}
+        {/* Brand mark */}
+        <div className="text-center mb-8">
+          <div
+            className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-5 overflow-hidden"
+            style={{
+              boxShadow: "0 6px 20px rgba(0,0,0,0.10)",
+              border: "1px solid var(--border)",
+            }}
           >
-            {loading ? "Authenticating..." : "Sign In"}
-          </button>
-        </form>
+            <img src="/logo.png" alt="Logo" className="w-full h-full object-cover" />
+          </div>
 
-        <div className="mt-8 pt-6 border-t border-gray-800 space-y-6">
-          <div className="text-center">
-            <p className="text-[10px] text-gray-500 uppercase tracking-[0.2em] font-black mb-4">Security & Transparency</p>
-            
-            <div className="grid grid-cols-1 gap-4 text-left">
-              <div className="flex gap-3 items-start p-3 bg-white/5 rounded-xl border border-white/5">
-                <ShieldCheck className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-xs font-bold text-gray-200">Safe Verification</p>
-                  <p className="text-[10px] text-gray-500 leading-relaxed">
-                    We verify your status using the open-source <a href="https://github.com/pesu-dev/auth" target="_blank" rel="noopener noreferrer" className="text-indigo-400 hover:underline inline-flex items-center gap-0.5">PESU-Auth API <ExternalLink className="w-2 h-2" /></a>.
-                  </p>
-                </div>
-              </div>
+          <h1
+            className="text-2xl font-extrabold tracking-tight mb-1"
+            style={{ color: "var(--text)" }}
+          >
+            Sign In
+          </h1>
 
-              <div className="flex gap-3 items-start p-3 bg-white/5 rounded-xl border border-white/5">
-                <Lock className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-xs font-bold text-gray-200">No Password Storage</p>
-                  <p className="text-[10px] text-gray-500 leading-relaxed">
-                    Your password is used once to establish a secure session and is <span className="text-amber-500/80 font-bold uppercase tracking-tighter">never saved</span> to our database.
-                  </p>
+          <div className="flex items-center justify-center gap-1.5 mt-1">
+            <p className="text-sm" style={{ color: "var(--subtle)" }}>
+              Use your PESU Academy credentials
+            </p>
+            {/* Tooltip */}
+            <div className="relative">
+              <button
+                type="button"
+                onMouseEnter={() => setShowTip(true)}
+                onMouseLeave={() => setShowTip(false)}
+                className="cursor-help"
+              >
+                <HelpCircle className="w-3.5 h-3.5" style={{ color: "var(--border2)" }} />
+              </button>
+              {showTip && (
+                <div
+                  className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-56 p-3 rounded-xl text-[11px] leading-relaxed text-center z-20"
+                  style={{
+                    background: "#fff",
+                    border: "1px solid var(--border)",
+                    color: "var(--muted)",
+                    boxShadow: "0 8px 24px rgba(0,0,0,0.10)",
+                  }}
+                >
+                  We use PESU credentials to prevent spam and ensure reviews come from verified PES students.
+                  <div
+                    className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent"
+                    style={{ borderTopColor: "var(--border)" }}
+                  />
                 </div>
-              </div>
-
-              <div className="flex gap-3 items-start p-3 bg-white/5 rounded-xl border border-white/5">
-                <Fingerprint className="w-5 h-5 text-indigo-500 shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-xs font-bold text-gray-200">Anonymous Identity</p>
-                  <p className="text-[10px] text-gray-500 leading-relaxed">
-                    Your SRN is hashed to ensure your reviews remain anonymous. Even admins cannot link a review back to your identity.
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex gap-3 items-start p-3 bg-indigo-500/5 rounded-xl border border-indigo-500/10">
-                <Shield className="w-5 h-5 text-indigo-400 shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-xs font-bold text-indigo-300">Verified Community</p>
-                  <p className="text-[10px] text-indigo-300/60 leading-relaxed">
-                    Credential-based login prevents spamming and ensures that all reviews come from actual members of the PES community.
-                  </p>
-                </div>
-              </div>
+              )}
             </div>
           </div>
-
-          <div className="bg-indigo-500/5 rounded-xl p-3 border border-indigo-500/10 flex items-center gap-3">
-             <Shield className="w-4 h-4 text-indigo-400 shrink-0" />
-             <p className="text-[10px] text-indigo-300/80 font-medium">
-               This site utilizes end-to-end encryption for all sensitive data transfers.
-             </p>
-          </div>
         </div>
+
+        {/* Form card */}
+        <div
+          className="bg-white rounded-2xl p-6 sm:p-8 mb-4 editorial-shadow"
+          style={{ border: "1px solid var(--border)" }}
+        >
+          {/* Error banner */}
+          {error && (
+            <div
+              className="rounded-xl px-4 py-3 text-sm mb-5 text-center"
+              style={{
+                background: "rgba(239,68,68,0.06)",
+                border: "1px solid rgba(239,68,68,0.18)",
+                color: "#dc2626",
+              }}
+            >
+              {error}
+            </div>
+          )}
+
+          <form onSubmit={handleLogin} className="space-y-5">
+            {/* SRN field */}
+            <div>
+              <label
+                className="block text-xs font-bold mb-2 uppercase tracking-widest"
+                style={{ color: "var(--subtle)" }}
+              >
+                PESU SRN
+              </label>
+              <input
+                type="text"
+                value={username}
+                onChange={e => setUsername(e.target.value)}
+                placeholder="e.g. PES1UG22CS001"
+                required
+                className="w-full rounded-xl px-4 py-3 text-sm focus:outline-none transition-all"
+                style={{
+                  background: "var(--surface2)",
+                  border: "1px solid var(--border)",
+                  color: "var(--text)",
+                }}
+                onFocus={e => e.target.style.borderColor = "var(--accent-border)"}
+                onBlur={e => e.target.style.borderColor = "var(--border)"}
+              />
+            </div>
+
+            {/* Password field */}
+            <div>
+              <label
+                className="block text-xs font-bold mb-2 uppercase tracking-widest"
+                style={{ color: "var(--subtle)" }}
+              >
+                Password
+              </label>
+              <input
+                type="password"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                placeholder="••••••••"
+                required
+                className="w-full rounded-xl px-4 py-3 text-sm focus:outline-none transition-all"
+                style={{
+                  background: "var(--surface2)",
+                  border: "1px solid var(--border)",
+                  color: "var(--text)",
+                }}
+                onFocus={e => e.target.style.borderColor = "var(--accent-border)"}
+                onBlur={e => e.target.style.borderColor = "var(--border)"}
+              />
+            </div>
+
+            {/* Privacy checkbox */}
+            <div className="flex items-start gap-3 pt-1">
+              <div className="relative flex items-center h-5 flex-shrink-0">
+                <input
+                  id="privacy-policy"
+                  type="checkbox"
+                  checked={accepted}
+                  onChange={(e) => setAccepted(e.target.checked)}
+                  className="w-4 h-4 rounded appearance-none cursor-pointer transition-all"
+                  style={{
+                    background: accepted ? "var(--accent)" : "#fff",
+                    border: `1.5px solid ${accepted ? "var(--accent)" : "var(--border2)"}`,
+                  }}
+                />
+                {/* Custom checkmark */}
+                {accepted && (
+                  <svg
+                    className="absolute inset-0 w-4 h-4 text-white pointer-events-none p-0.5"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                )}
+              </div>
+              <label
+                htmlFor="privacy-policy"
+                className="text-xs leading-relaxed cursor-pointer"
+                style={{ color: "var(--muted)" }}
+              >
+                I have read and agree to the{" "}
+                <Link
+                  href="/privacy"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-semibold underline underline-offset-2 transition-colors"
+                  style={{ color: "var(--accent)" }}
+                  onMouseEnter={e => e.target.style.color = "var(--accent-l)"}
+                  onMouseLeave={e => e.target.style.color = "var(--accent)"}
+                >
+                  Privacy Policy & Community Rules
+                </Link>
+                .
+              </label>
+            </div>
+
+            {/* Submit button */}
+            <button
+              type="submit"
+              disabled={loading || !accepted}
+              className="w-full py-3 rounded-xl font-semibold text-sm text-white transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+              style={{
+                background: "var(--accent)",
+                boxShadow: "0 4px 14px rgba(53,37,205,0.25)",
+              }}
+              onMouseEnter={e => (!loading && accepted) && (e.currentTarget.style.background = "var(--accent-l)")}
+              onMouseLeave={e => (e.currentTarget.style.background = "var(--accent)")}
+            >
+              {loading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                  </svg>
+                  Authenticating…
+                </span>
+              ) : "Sign In"}
+            </button>
+          </form>
+        </div>
+
+        {/* Footer note */}
+        <p className="text-center text-[11px]" style={{ color: "var(--subtle)" }}>
+          Your SRN is cryptographically hashed — we never store it in plaintext.
+        </p>
+
       </div>
     </div>
   );

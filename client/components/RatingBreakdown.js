@@ -1,82 +1,79 @@
 "use client";
 
-// Converts a sentiment score (-1 to 1) to a 0–100% bar width
+// RatingBreakdown – horizontal bar chart showing category averages
 function sentimentToPercent(score) {
   return Math.round(((score + 1) / 2) * 100);
 }
 
-// RatingBreakdown – horizontal bar chart showing category averages
+// Bar with animated fill
+function RatingBar({ value, color }) {
+  const pct = value ? (value / 5) * 100 : 0;
+  return (
+    <div className="relative h-3 w-full rounded-full overflow-hidden" style={{ background: "rgba(0,0,0,0.06)", boxShadow: "inset 0 1px 2px rgba(0,0,0,0.08)" }}>
+      <div
+        className="absolute left-0 top-0 h-full rounded-full transition-all duration-700 ease-out"
+        style={{ width: `${pct}%`, background: color }}
+      />
+    </div>
+  );
+}
+
+const CATEGORIES = [
+  { key: "overall",             label: "Overall",             color: "#3525cd" },
+  { key: "teachingQuality",     label: "Teaching Quality",    color: "#059669" },
+  { key: "difficulty",          label: "Ease of Course",      color: "#2563eb" },
+  { key: "gradingStrictness",   label: "Grading",             color: "#b45309" },
+  { key: "attendanceStrictness",label: "Attendance",          color: "#7c3aed" },
+];
+
 export default function RatingBreakdown({ breakdown }) {
   if (!breakdown) return null;
 
-  const categories = [
-    { label: "Overall Rating", value: breakdown.overall, color: "from-indigo-500 to-purple-500" },
-    { label: "Teaching Quality", value: breakdown.teachingQuality, color: "from-cyan-500 to-blue-500" },
-    { label: "Difficulty", value: breakdown.difficulty, color: "from-orange-500 to-red-500" },
-    { label: "Grading Strictness", value: breakdown.gradingStrictness, color: "from-amber-500 to-yellow-500" },
-    { label: "Attendance Strictness", value: breakdown.attendanceStrictness, color: "from-pink-500 to-rose-500" },
-  ];
-
   const hasSentiment = breakdown.averageSentimentScore !== undefined && breakdown.averageSentimentScore !== null;
-  const sentimentScore = breakdown.averageSentimentScore ?? 0;
-  const sentimentPct = sentimentToPercent(sentimentScore);
-  const sentimentColor =
-    sentimentScore > 0.2
-      ? "from-emerald-500 to-green-400"
-      : sentimentScore < -0.2
-      ? "from-red-500 to-rose-400"
-      : "from-gray-500 to-gray-400";
-  const sentimentLabel =
-    sentimentScore > 0.2 ? "Positive" : sentimentScore < -0.2 ? "Negative" : "Neutral";
+  const sentScore = breakdown.averageSentimentScore ?? 0;
+  const sentPct = sentimentToPercent(sentScore);
+  const sentColor = sentScore > 0.2 ? "#34d399" : sentScore < -0.2 ? "#f87171" : "#71717a";
+  const sentLabel = sentScore > 0.2 ? "Positive" : sentScore < -0.2 ? "Negative" : "Neutral";
+  const sentBg = sentScore > 0.2 ? "rgba(16,185,129,0.1)" : sentScore < -0.2 ? "rgba(239,68,68,0.1)" : "var(--surface2)";
+  const sentBorder = sentScore > 0.2 ? "rgba(16,185,129,0.25)" : sentScore < -0.2 ? "rgba(239,68,68,0.25)" : "var(--border)";
 
   return (
     <div className="space-y-4">
-      {categories.map(({ label, value, color }) => (
-        <div key={label}>
-          <div className="flex items-center justify-between mb-1.5">
-            <span className="text-sm text-gray-400">{label}</span>
-            <span className="text-sm font-semibold text-white">
-              {value ? value.toFixed(1) : "–"} / 5
-            </span>
+      {CATEGORIES.map(({ key, label, color }) => {
+        const value = key === "overall" ? breakdown.overall : breakdown[key];
+        return (
+          <div key={key}>
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-medium" style={{ color: "var(--muted)" }}>{label}</span>
+              <span className="text-xs font-bold tabular-nums" style={{ color: value ? color : "var(--subtle)" }}>
+                {value ? value.toFixed(1) : "–"}<span style={{ color: "var(--border2)" }}>/5</span>
+              </span>
+            </div>
+            <RatingBar value={value} color={color} />
           </div>
-          <div className="h-2.5 bg-gray-800 rounded-full overflow-hidden">
-            <div
-              className={`h-full rounded-full bg-gradient-to-r ${color} transition-all duration-500 ease-out`}
-              style={{ width: `${(value / 5) * 100}%` }}
-            />
-          </div>
-        </div>
-      ))}
+        );
+      })}
 
-      {/* Sentiment row — only shown when data is present */}
+      {/* Sentiment */}
       {hasSentiment && (
-        <div>
-          <div className="flex items-center justify-between mb-1.5">
-            <span className="text-sm text-gray-400">Review Sentiment</span>
+        <div className="pt-2" style={{ borderTop: "1px solid var(--border)" }}>
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-medium" style={{ color: "var(--muted)" }}>Review Sentiment</span>
             <span
-              className={`text-xs font-bold px-2 py-0.5 rounded-full border ${
-                sentimentScore > 0.2
-                  ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
-                  : sentimentScore < -0.2
-                  ? "bg-red-500/10 text-red-400 border-red-500/20"
-                  : "bg-gray-700/50 text-gray-500 border-gray-700"
-              }`}
+              className="text-[10px] font-bold px-2 py-0.5 rounded-full"
+              style={{ background: sentBg, color: sentColor, border: `1px solid ${sentBorder}` }}
             >
-              {sentimentLabel}
+              {sentLabel}
             </span>
           </div>
-          {/* Bar goes from 0% (hate) to 50% (neutral) to 100% (love) */}
-          <div className="relative h-2.5 bg-gray-800 rounded-full overflow-hidden">
-            <div
-              className={`h-full rounded-full bg-gradient-to-r ${sentimentColor} transition-all duration-500 ease-out`}
-              style={{ width: `${sentimentPct}%` }}
-            />
-            {/* Centre marker for neutral reference */}
-            <div className="absolute top-0 left-1/2 w-px h-full bg-gray-600 opacity-50" />
+          <div className="relative h-2 w-full rounded-full overflow-hidden" style={{ background: "var(--surface2)" }}>
+            <div className="absolute left-0 top-0 h-full rounded-full transition-all duration-700"
+              style={{ width: `${sentPct}%`, background: sentColor }} />
+            <div className="absolute top-0 left-1/2 w-px h-full" style={{ background: "var(--border2)" }} />
           </div>
           <div className="flex justify-between mt-1">
-            <span className="text-[9px] text-gray-600">Negative</span>
-            <span className="text-[9px] text-gray-600">Positive</span>
+            <span className="text-[9px]" style={{ color: "var(--border2)" }}>Negative</span>
+            <span className="text-[9px]" style={{ color: "var(--border2)" }}>Positive</span>
           </div>
         </div>
       )}

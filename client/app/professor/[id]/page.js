@@ -9,10 +9,31 @@ import ReviewCard from "../../../components/ReviewCard";
 import AddReviewForm from "../../../components/AddReviewForm";
 import { isAuthenticated, getToken } from "../../../lib/auth";
 
-export default function ProfessorDetailPage({ params }) {
-  // Unwrap the params promise (Next.js 15 requires this)
-  const { id } = use(params);
+// ── Loading skeleton ─────────────────────────────────────────────
+function DetailSkeleton() {
+  return (
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10 animate-pulse">
+      <div className="skeleton h-4 w-32 mb-8 rounded-lg" />
+      <div className="bg-white border border-outline-variant/40 rounded-xl p-8 mb-6 editorial-shadow">
+        <div className="flex gap-6">
+          <div className="skeleton w-20 h-20 rounded-xl flex-shrink-0" />
+          <div className="flex-1 space-y-3">
+            <div className="skeleton h-7 w-1/2 rounded-lg" />
+            <div className="skeleton h-4 w-1/3 rounded-lg" />
+            <div className="skeleton h-4 w-1/4 rounded-lg" />
+          </div>
+        </div>
+      </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="skeleton rounded-xl h-64" />
+        <div className="skeleton rounded-xl h-64" />
+      </div>
+    </div>
+  );
+}
 
+export default function ProfessorDetailPage({ params }) {
+  const { id } = use(params);
   const [professor, setProfessor] = useState(null);
   const [reviewData, setReviewData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -23,186 +44,224 @@ export default function ProfessorDetailPage({ params }) {
     try {
       setLoading(true);
       const token = getToken();
-      const [prof, revData] = await Promise.all([
-        fetchProfessor(id),
-        fetchReviews(id, token),
-      ]);
+      const [prof, revData] = await Promise.all([fetchProfessor(id), fetchReviews(id, token)]);
       setProfessor(prof);
       setReviewData(revData);
-    } catch (err) {
+    } catch {
       setError("Failed to load professor data");
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    loadData();
-  }, [id]);
+  useEffect(() => { loadData(); }, [id]);
 
-  const handleReviewAdded = () => {
-    // Reload data after new review is submitted
-    loadData();
-    setShowForm(false);
-  };
+  const handleReviewAdded = () => { loadData(); setShowForm(false); };
 
-  if (loading) {
-    return (
-      <div className="flex justify-center py-32">
-        <div className="w-10 h-10 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  }
+  if (loading) return <DetailSkeleton />;
 
   if (error || !professor) {
     return (
-      <div className="max-w-4xl mx-auto px-4 py-16 text-center">
-        <p className="text-lg text-red-400 mb-4">{error || "Professor not found"}</p>
-        <Link
-          href="/"
-          className="text-indigo-400 hover:text-indigo-300 text-sm underline"
-        >
+      <div className="max-w-5xl mx-auto px-4 py-24 text-center" style={{ background: "#F8F9FA" }}>
+        <p className="text-base mb-4 text-red-600">{error || "Professor not found"}</p>
+        <Link href="/" className="text-sm transition-colors" style={{ color: "var(--accent-l)" }}>
           ← Back to all professors
         </Link>
       </div>
     );
   }
 
-  return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* Back link */}
-      <Link
-        href="/"
-        className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-indigo-400 transition-colors mb-6"
-      >
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-        </svg>
-        Back to all professors
-      </Link>
+  // Rating config for light theme
+  const r = professor.averageRating;
+  const ratingColor = r >= 4 ? "#059669" : r >= 3 ? "#b45309" : r > 0 ? "#dc2626" : "var(--subtle)";
+  const ratingBg   = r >= 4 ? "rgba(16,185,129,0.10)" : r >= 3 ? "rgba(245,158,11,0.10)" : r > 0 ? "rgba(239,68,68,0.08)" : "var(--surface2)";
+  const ratingBorder = r >= 4 ? "rgba(16,185,129,0.25)" : r >= 3 ? "rgba(245,158,11,0.22)" : r > 0 ? "rgba(239,68,68,0.20)" : "var(--border)";
 
-      {/* Professor header */}
-      <div className="bg-gray-900/60 border border-gray-800 rounded-2xl p-6 sm:p-8 mb-6">
-        <div className="flex flex-col sm:flex-row sm:items-start gap-6">
-          {/* Avatar */}
-          <div className="flex-shrink-0 w-20 h-20 rounded-2xl bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center text-3xl font-bold text-white shadow-lg shadow-indigo-500/25">
-            {professor.name.charAt(0)}
+  return (
+    <div className="min-h-screen" style={{ background: "#F8F9FA" }}>
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
+        {/* ── Back link ─────────────────────────────────────── */}
+        <Link href="/"
+          className="inline-flex items-center gap-1.5 text-sm mb-8 transition-colors group"
+          style={{ color: "var(--subtle)" }}
+          onMouseEnter={e => e.currentTarget.style.color = "var(--accent-l)"}
+          onMouseLeave={e => e.currentTarget.style.color = "var(--subtle)"}
+        >
+          <svg className="w-4 h-4 transition-transform group-hover:-translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+          All professors
+        </Link>
+
+        {/* ── Professor Header Card ──────────────────────────── */}
+        <section className="bg-white border border-outline-variant/40 rounded-xl p-6 sm:p-8 mb-6 editorial-shadow">
+          {/* Breadcrumb chips */}
+          <div className="flex items-center gap-2 mb-4">
+            <span className="px-2 py-1 rounded text-[11px] font-semibold uppercase tracking-wider"
+              style={{ background: "var(--surface2)", color: "var(--muted)", border: "1px solid var(--border)" }}>
+              {professor.department}
+            </span>
+            {professor.campus && professor.campus !== "Unknown" && (
+              <span className="px-2 py-1 rounded text-[11px] font-semibold uppercase tracking-wider"
+                style={{ background: "var(--surface2)", color: "var(--muted)", border: "1px solid var(--border)" }}>
+                {professor.campus}
+              </span>
+            )}
           </div>
 
-          <div className="flex-1">
-            <h1 className="text-2xl sm:text-3xl font-bold text-white mb-1">
-              {professor.name}
-            </h1>
-            <p className="text-gray-400 mb-3">
-              {professor.department}{professor.campus && professor.campus !== "Unknown" ? `, ${professor.campus}` : ""}
-            </p>
+          {/* Name + Stats row */}
+          <div className="flex flex-col lg:flex-row justify-between items-start gap-6">
+            <div className="flex-1">
+              <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-2 leading-tight" style={{ color: "var(--text)" }}>
+                {professor.name}
+              </h1>
 
-            {/* Rating summary */}
-            <div className="flex items-center gap-3 mb-4">
-              <StarRating rating={professor.averageRating} size="text-xl" />
-              <span className="text-2xl font-bold text-white">
-                {professor.averageRating > 0
-                  ? professor.averageRating.toFixed(1)
-                  : "–"}
-              </span>
-              <span className="text-sm text-gray-500">
-                ({professor.totalReviews}{" "}
-                {professor.totalReviews === 1 ? "review" : "reviews"})
-              </span>
+              {/* Stars row */}
+              <div className="flex items-center gap-3 mb-4">
+                <StarRating rating={r} size="text-base" />
+                <span className="text-sm" style={{ color: "var(--subtle)" }}>
+                  {professor.totalReviews === 0
+                    ? "No reviews yet"
+                    : `Based on ${professor.totalReviews} ${professor.totalReviews === 1 ? "review" : "reviews"}`}
+                </span>
+              </div>
+
+              {/* Subject chips */}
+              {professor.subjects && professor.subjects.length > 0 && (
+                <div className="flex flex-wrap gap-1.5">
+                  {professor.subjects.map(s => (
+                    <span key={s} className="text-xs px-3 py-1 rounded-lg"
+                      style={{ background: "var(--surface2)", color: "var(--muted)", border: "1px solid var(--border)" }}>
+                      {s}
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
 
-            {/* Subjects */}
-            {professor.subjects && professor.subjects.length > 0 && (
-              <div className="flex flex-wrap gap-2">
-                {professor.subjects.map((subj) => (
-                  <span
-                    key={subj}
-                    className="text-xs px-3 py-1 rounded-lg bg-gray-800 text-gray-400 border border-gray-700"
-                  >
-                    {subj}
-                  </span>
-                ))}
+            {/* Stats overview — three boxes */}
+            <div className="flex flex-wrap lg:flex-nowrap gap-3 w-full lg:w-auto flex-shrink-0">
+              {/* Overall score */}
+              <div className="flex-1 lg:flex-none min-w-[110px] rounded-xl p-4 flex flex-col items-center justify-center text-white"
+                style={{ background: "var(--accent)", boxShadow: "0 4px 16px rgba(53,37,205,0.25)" }}>
+                <span className="text-3xl font-black tracking-tight">
+                  {r > 0 ? r.toFixed(1) : "–"}
+                </span>
+                <span className="text-[10px] font-bold uppercase tracking-widest opacity-80 mt-0.5">Overall</span>
               </div>
+
+              {/* Breakdown quick stat */}
+              {reviewData?.breakdown?.teachingQuality != null && (
+                <div className="flex-1 lg:flex-none min-w-[110px] bg-white rounded-xl p-4 flex flex-col items-center justify-center editorial-shadow"
+                  style={{ border: "1px solid var(--border)" }}>
+                  <span className="text-2xl font-bold" style={{ color: "var(--text)" }}>
+                    {reviewData.breakdown.teachingQuality?.toFixed(1) ?? "–"}
+                  </span>
+                  <span className="text-[10px] font-bold uppercase tracking-wider mt-0.5" style={{ color: "var(--subtle)" }}>Teaching</span>
+                </div>
+              )}
+
+              {/* Difficulty */}
+              {reviewData?.breakdown?.difficulty != null && (
+                <div className="flex-1 lg:flex-none min-w-[110px] bg-white rounded-xl p-4 flex flex-col items-center justify-center editorial-shadow"
+                  style={{ border: "1px solid var(--border)" }}>
+                  <span className="text-2xl font-bold" style={{ color: "var(--text)" }}>
+                    {reviewData.breakdown.difficulty?.toFixed(1) ?? "–"}
+                  </span>
+                  <span className="text-[10px] font-bold uppercase tracking-wider mt-0.5" style={{ color: "var(--subtle)" }}>Ease</span>
+                </div>
+              )}
+            </div>
+          </div>
+        </section>
+
+        {/* ── Breakdown + Write review ───────────────────────── */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          {/* Rating Breakdown */}
+          <div className="bg-white rounded-xl p-6 editorial-shadow" style={{ border: "1px solid var(--border)" }}>
+            <h2 className="text-xs font-bold mb-5 uppercase tracking-widest" style={{ color: "var(--subtle)" }}>
+              Rating Distribution
+            </h2>
+            {reviewData?.breakdown
+              ? <RatingBreakdown breakdown={reviewData.breakdown} />
+              : <p className="text-sm" style={{ color: "var(--subtle)" }}>No reviews yet</p>
+            }
+          </div>
+
+          {/* Write a Review */}
+          <div className="bg-white rounded-xl p-6 editorial-shadow" style={{ border: "1px solid var(--border)" }}>
+            <h2 className="text-xs font-bold mb-5 uppercase tracking-widest" style={{ color: "var(--subtle)" }}>
+              Rate This Professor
+            </h2>
+            {!showForm ? (
+              <div className="flex flex-col items-center justify-center h-[calc(100%-3rem)] text-center py-8 gap-4">
+                <div className="w-12 h-12 rounded-xl flex items-center justify-center"
+                  style={{ background: "var(--accent-bg)", border: "1px solid var(--accent-border)" }}>
+                  <svg className="w-5 h-5" style={{ color: "var(--accent)" }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                </div>
+                <p className="text-sm" style={{ color: "var(--subtle)" }}>
+                  Had this professor? Share your experience anonymously.
+                </p>
+                <button
+                  onClick={() => {
+                    if (!isAuthenticated()) {
+                      window.location.href = `/login?redirect=/professor/${id}`;
+                    } else {
+                      setShowForm(true);
+                    }
+                  }}
+                  className="text-sm font-semibold px-6 py-2.5 rounded-xl transition-all cursor-pointer text-white"
+                  style={{ background: "var(--accent)", boxShadow: "0 4px 14px rgba(53,37,205,0.25)" }}
+                  onMouseEnter={e => e.currentTarget.style.background = "var(--accent-l)"}
+                  onMouseLeave={e => e.currentTarget.style.background = "var(--accent)"}
+                >
+                  Write a Review
+                </button>
+              </div>
+            ) : (
+              <AddReviewForm professorId={id} professorName={professor.name} onReviewAdded={handleReviewAdded} />
             )}
           </div>
         </div>
-      </div>
 
-      {/* Content grid: breakdown + add review */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        {/* Rating breakdown */}
-        <div className="bg-gray-900/60 border border-gray-800 rounded-2xl p-6">
-          <h2 className="text-lg font-semibold text-white mb-4">
-            Rating Breakdown
-          </h2>
-          {reviewData?.breakdown ? (
-            <RatingBreakdown breakdown={reviewData.breakdown} />
-          ) : (
-            <p className="text-sm text-gray-500">No reviews yet</p>
-          )}
-        </div>
-
-        {/* Add review section */}
-        <div className="bg-gray-900/60 border border-gray-800 rounded-2xl p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-white">Rate This Professor</h2>
+        {/* ── Reviews List ──────────────────────────────────── */}
+        <div>
+          <div className="flex items-center justify-between mb-5 px-1">
+            <div className="flex items-center gap-3">
+              <h2 className="text-sm font-bold uppercase tracking-widest" style={{ color: "var(--muted)" }}>
+                Student Reviews
+              </h2>
+              {reviewData?.totalReviews > 0 && (
+                <span className="text-xs px-2.5 py-0.5 rounded-full font-semibold"
+                  style={{ background: "var(--accent-bg)", color: "var(--accent)", border: "1px solid var(--accent-border)" }}>
+                  {reviewData.totalReviews}
+                </span>
+              )}
+            </div>
           </div>
-          {!showForm ? (
-            <div className="text-center py-8">
-              <p className="text-sm text-gray-500 mb-4">
-                Had this professor? Share your experience anonymously.
-              </p>
-              <button
-                onClick={() => {
-                  if (!isAuthenticated()) {
-                    window.location.href = `/login?redirect=/professor/${id}`;
-                  } else {
-                    setShowForm(true);
-                  }
-                }}
-                className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-semibold py-2.5 px-6 rounded-xl transition-all duration-200 shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40"
-              >
-                Write a Review
-              </button>
+
+          {reviewData?.reviews && reviewData.reviews.length > 0 ? (
+            <div className="space-y-3">
+              {reviewData.reviews.map(review => (
+                <ReviewCard key={review._id} review={review} onUpdate={loadData} />
+              ))}
             </div>
           ) : (
-            <AddReviewForm
-              professorId={id}
-              professorName={professor.name}
-              onReviewAdded={handleReviewAdded}
-            />
+            <div className="bg-white rounded-xl p-12 text-center editorial-shadow" style={{ border: "1px solid var(--border)" }}>
+              <p className="text-sm" style={{ color: "var(--subtle)" }}>
+                No reviews yet — be the first to rate this professor.
+              </p>
+            </div>
           )}
         </div>
-      </div>
 
-      {/* Reviews list */}
-      <div>
-        <h2 className="text-lg font-semibold text-white mb-4">
-          Reviews ({reviewData?.totalReviews || 0})
-        </h2>
-        {reviewData?.reviews && reviewData.reviews.length > 0 ? (
-          <div className="space-y-4">
-            {reviewData.reviews.map((review) => (
-              <ReviewCard 
-                key={review._id} 
-                review={review} 
-                onUpdate={loadData}
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="bg-gray-900/40 border border-gray-800 rounded-xl p-10 text-center">
-            <p className="text-gray-500">
-              No reviews yet. Be the first to review!
-            </p>
-          </div>
-        )}
-      </div>
-
-      {/* Disclaimer */}
-      <div className="mt-8 text-center">
-        <p className="text-xs text-gray-600 italic">
-          ⚠️ All reviews are anonymous student opinions and do not represent official evaluations.
+        {/* ── Disclaimer ────────────────────────────────────── */}
+        <p className="mt-10 text-center text-xs italic" style={{ color: "var(--border2)" }}>
+          All reviews are anonymous student opinions and do not represent official evaluations.
         </p>
       </div>
     </div>

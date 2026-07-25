@@ -2,35 +2,46 @@
 
 import { useForm } from "react-hook-form";
 import { useState } from "react";
-import { X, AlertCircle, CheckCircle2, Loader2, Calendar, MessageSquare, GraduationCap, MapPin, BarChart } from "lucide-react";
+import { X, AlertCircle, CheckCircle2, Loader2, MessageSquare, GraduationCap, MapPin, BarChart } from "lucide-react";
 import { submitProfessorRequest } from "../lib/api";
 import { getToken } from "../lib/auth";
 
-export default function RequestProfessorModal({ isOpen, onClose }) {
-  const { register, handleSubmit, reset, watch, formState: { errors } } = useForm({
-    defaultValues: {
-      campus: "RR"
-    }
-  });
+const inputClass = (hasError) => ({
+  width: "100%",
+  background: "var(--surface2)",
+  border: `1px solid ${hasError ? "rgba(239,68,68,0.5)" : "var(--border)"}`,
+  borderRadius: "0.75rem",
+  padding: "0.625rem 1rem",
+  fontSize: "0.875rem",
+  color: "#fafaf9",
+  outline: "none",
+  transition: "border-color 0.15s",
+});
 
+function FieldLabel({ icon: Icon, children }) {
+  return (
+    <label className="flex items-center gap-1.5 text-[10px] uppercase tracking-widest font-bold mb-2"
+      style={{ color: "var(--subtle)" }}>
+      <Icon className="w-3 h-3" />
+      {children}
+    </label>
+  );
+}
+
+export default function RequestProfessorModal({ isOpen, onClose }) {
+  const { register, handleSubmit, reset, watch, formState: { errors } } = useForm({ defaultValues: { campus: "RR" } });
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
 
   const onSubmit = async (data) => {
-    setSubmitting(true);
-    setError("");
+    setSubmitting(true); setError("");
     try {
-      const token = getToken();
-      await submitProfessorRequest(data, token);
+      await submitProfessorRequest(data, getToken());
       setSuccess(true);
-      setTimeout(() => {
-        reset();
-        setSuccess(false);
-        onClose();
-      }, 2000);
+      setTimeout(() => { reset(); setSuccess(false); onClose(); }, 2200);
     } catch (err) {
-      setError(err.message || "Failed to submit request. Please try again.");
+      setError(err.message || "Failed to submit. Please try again.");
     } finally {
       setSubmitting(false);
     }
@@ -39,63 +50,83 @@ export default function RequestProfessorModal({ isOpen, onClose }) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-sm animate-in fade-in duration-300">
-      <div className="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-lg shadow-2xl relative overflow-hidden flex flex-col max-h-[90vh]">
-        
-        {/* Header */}
-        <div className="p-6 border-b border-white/5 flex items-center justify-between bg-slate-900/50 backdrop-blur-md sticky top-0 z-10">
-          <div>
-            <h2 className="text-xl font-bold text-white flex items-center gap-2">
-              <AlertCircle className="w-5 h-5 text-amber-500" />
-              Report Missing Professor
-            </h2>
-            <p className="text-slate-400 text-xs mt-1">Help us update the PESU directory!</p>
-          </div>
-          <button 
-            onClick={onClose}
-            className="p-2 hover:bg-white/5 rounded-full transition-colors text-slate-400 hover:text-white"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
+    <div
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-6"
+      style={{ background: "rgba(0,0,0,0.75)", backdropFilter: "blur(6px)" }}
+    >
+      {/* Dismiss on backdrop click */}
+      <div className="absolute inset-0" onClick={onClose} />
 
-        {/* Success Overlay */}
+      <div
+        className="relative w-full sm:max-w-lg flex flex-col rounded-t-3xl sm:rounded-2xl overflow-hidden"
+        style={{
+          background: "var(--surface)",
+          border: "1px solid var(--border)",
+          maxHeight: "92vh",
+          boxShadow: "0 32px 80px rgba(0,0,0,0.6)",
+        }}
+      >
+        {/* Success overlay */}
         {success && (
-          <div className="absolute inset-0 z-20 bg-slate-900/90 backdrop-blur-sm flex flex-col items-center justify-center text-center p-8 animate-in zoom-in duration-300">
-            <div className="w-16 h-16 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mb-4">
-              <CheckCircle2 className="w-10 h-10" />
+          <div className="absolute inset-0 z-20 flex flex-col items-center justify-center text-center p-8"
+            style={{ background: "var(--surface)", backdropFilter: "blur(4px)" }}>
+            <div className="w-16 h-16 rounded-full flex items-center justify-center mb-4"
+              style={{ background: "rgba(16,185,129,0.12)", border: "2px solid rgba(16,185,129,0.3)" }}>
+              <CheckCircle2 className="w-8 h-8" style={{ color: "#34d399" }} />
             </div>
-            <h3 className="text-2xl font-bold text-white mb-2">Thank You!</h3>
-            <p className="text-slate-400">Your report has been submitted for verification. We'll update the database soon.</p>
+            <h3 className="text-xl font-bold mb-2" style={{ color: "#fafaf9" }}>Submitted!</h3>
+            <p className="text-sm" style={{ color: "var(--muted)" }}>
+              We'll review and update the directory soon. Thanks for helping!
+            </p>
           </div>
         )}
 
-        {/* Form Body */}
-        <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-5 overflow-y-auto custom-scrollbar">
-          
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-5 shrink-0"
+          style={{ borderBottom: "1px solid var(--border)" }}>
+          <div>
+            <h2 className="text-base font-bold flex items-center gap-2" style={{ color: "#fafaf9" }}>
+              <AlertCircle className="w-4 h-4" style={{ color: "var(--amber)" }} />
+              Report Missing Professor
+            </h2>
+            <p className="text-xs mt-0.5" style={{ color: "var(--subtle)" }}>
+              Help us keep the PESU directory up to date
+            </p>
+          </div>
+          <button onClick={onClose}
+            className="p-2 rounded-xl transition-colors cursor-pointer"
+            style={{ color: "var(--subtle)" }}
+            onMouseEnter={e => { e.currentTarget.style.background = "var(--surface2)"; e.currentTarget.style.color = "#fafaf9"; }}
+            onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--subtle)"; }}
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        {/* Form */}
+        <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-5 overflow-y-auto">
+
           {error && (
-            <div className="bg-red-500/10 border border-red-500/20 p-3 rounded-xl flex items-center gap-3 text-red-400 text-sm">
-              <AlertCircle className="w-4 h-4 shrink-0" />
-              {error}
+            <div className="rounded-xl px-4 py-3 text-sm flex items-center gap-2"
+              style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)", color: "#f87171" }}>
+              <AlertCircle className="w-4 h-4 shrink-0" /> {error}
             </div>
           )}
 
-          {/* Campus Selection */}
+          {/* Campus */}
           <div>
-            <label className="text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-2 flex items-center gap-1.5">
-              <MapPin className="w-3 h-3" />
-              Campus *
-            </label>
+            <FieldLabel icon={MapPin}>Campus *</FieldLabel>
             <div className="grid grid-cols-2 gap-3">
-              {['RR', 'EC'].map((c) => (
-                <label key={c} className={`
-                  relative flex items-center justify-center p-3 rounded-xl border transition-all cursor-pointer
-                  ${watch('campus') === c 
-                    ? 'border-sky-500/50 bg-sky-500/5 text-sky-400' 
-                    : 'border-white/5 bg-white/5 text-slate-400 hover:bg-white/10'}
-                `}>
+              {["RR", "EC"].map(c => (
+                <label key={c}
+                  className="relative flex items-center justify-center py-3 rounded-xl cursor-pointer transition-all text-sm font-semibold"
+                  style={watch("campus") === c
+                    ? { background: "var(--accent-bg)", border: "1px solid var(--accent-border)", color: "var(--accent-l)" }
+                    : { background: "var(--surface2)", border: "1px solid var(--border)", color: "var(--subtle)" }
+                  }
+                >
                   <input {...register("campus", { required: true })} type="radio" value={c} className="sr-only" />
-                  <span className="text-sm font-semibold">{c === 'RR' ? 'Ring Road (RR)' : 'Electronic City (EC)'}</span>
+                  {c === "RR" ? "Ring Road (RR)" : "Electronic City (EC)"}
                 </label>
               ))}
             </div>
@@ -103,78 +134,73 @@ export default function RequestProfessorModal({ isOpen, onClose }) {
 
           {/* Name & Dept */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <label className="text-[10px] uppercase tracking-widest text-slate-500 font-bold flex items-center gap-1.5">
-                <GraduationCap className="w-3 h-3" />
-                Full Name *
-              </label>
-              <input 
+            <div>
+              <FieldLabel icon={GraduationCap}>Full Name *</FieldLabel>
+              <input
                 {...register("name", { required: "Name is required" })}
-                placeholder="e.g. Dr. John Doe"
-                className={`w-full bg-white/5 border ${errors.name ? 'border-red-500/50' : 'border-white/10'} rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-sky-500/50 transition-all`}
+                placeholder="e.g. Dr. Jane Smith"
+                style={inputClass(errors.name)}
+                onFocus={e => e.target.style.borderColor = "var(--accent-border)"}
+                onBlur={e => e.target.style.borderColor = errors.name ? "rgba(239,68,68,0.5)" : "var(--border)"}
               />
+              {errors.name && <p className="text-[10px] mt-1" style={{ color: "#f87171" }}>{errors.name.message}</p>}
             </div>
-            <div className="space-y-1.5">
-              <label className="text-[10px] uppercase tracking-widest text-slate-500 font-bold flex items-center gap-1.5">
-                <BarChart className="w-3 h-3" />
-                Department *
-              </label>
-              <input 
+            <div>
+              <FieldLabel icon={BarChart}>Department *</FieldLabel>
+              <input
                 {...register("department", { required: "Department is required" })}
                 placeholder="e.g. CSE, ECE"
-                className={`w-full bg-white/5 border ${errors.department ? 'border-red-500/50' : 'border-white/10'} rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-sky-500/50 transition-all`}
+                style={inputClass(errors.department)}
+                onFocus={e => e.target.style.borderColor = "var(--accent-border)"}
+                onBlur={e => e.target.style.borderColor = errors.department ? "rgba(239,68,68,0.5)" : "var(--border)"}
               />
+              {errors.department && <p className="text-[10px] mt-1" style={{ color: "#f87171" }}>{errors.department.message}</p>}
             </div>
           </div>
 
           {/* Courses */}
-          <div className="space-y-1.5">
-            <label className="text-[10px] uppercase tracking-widest text-slate-500 font-bold flex items-center gap-1.5">
-              <CheckCircle2 className="w-3 h-3" />
-              Subjects Handled *
-            </label>
-            <input 
-              {...register("courses", { required: "Min 1 course is required" })}
-              placeholder="e.g. OS, DBMS, AI"
-              className={`w-full bg-white/5 border ${errors.courses ? 'border-red-500/50' : 'border-white/10'} rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-sky-500/50 transition-all`}
+          <div>
+            <FieldLabel icon={CheckCircle2}>Subjects Handled *</FieldLabel>
+            <input
+              {...register("courses", { required: "At least one subject is required" })}
+              placeholder="e.g. OS, DBMS, AI (comma-separated)"
+              style={inputClass(errors.courses)}
+              onFocus={e => e.target.style.borderColor = "var(--accent-border)"}
+              onBlur={e => e.target.style.borderColor = errors.courses ? "rgba(239,68,68,0.5)" : "var(--border)"}
+            />
+            {errors.courses && <p className="text-[10px] mt-1" style={{ color: "#f87171" }}>{errors.courses.message}</p>}
+          </div>
+
+          {/* Comments */}
+          <div>
+            <FieldLabel icon={MessageSquare}>Additional Comments</FieldLabel>
+            <textarea
+              {...register("additionalComments")}
+              placeholder="Anything else to help us identify them?"
+              rows={3}
+              className="w-full rounded-xl px-4 py-2.5 text-sm resize-none focus:outline-none transition-all"
+              style={{ background: "var(--surface2)", border: "1px solid var(--border)", color: "#fafaf9" }}
+              onFocus={e => e.target.style.borderColor = "var(--accent-border)"}
+              onBlur={e => e.target.style.borderColor = "var(--border)"}
             />
           </div>
 
-          {/* Optional Fields Display */}
-          <div className="grid grid-cols-1 gap-4">
-              <div className="space-y-1.5">
-                <label className="text-[10px] uppercase tracking-widest text-slate-500 font-bold flex items-center gap-1.5">
-                  <MessageSquare className="w-3 h-3" />
-                  Additional Comments
-                </label>
-                <textarea 
-                  {...register("additionalComments")}
-                  placeholder="Anything else to help us identify them?"
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-sky-500/50 transition-all resize-none h-20"
-                />
-              </div>
-          </div>
-
-          {/* Action Button */}
-          <button 
-            type="submit"
-            disabled={submitting}
-            className="w-full bg-sky-600 hover:bg-sky-500 text-white font-bold py-3.5 rounded-2xl transition-all shadow-xl shadow-sky-900/40 flex items-center justify-center gap-2 mt-4"
+          {/* Submit */}
+          <button type="submit" disabled={submitting}
+            className="w-full py-3 rounded-xl font-semibold text-sm text-white transition-all cursor-pointer disabled:opacity-60 flex items-center justify-center gap-2"
+            style={{ background: "var(--accent)", boxShadow: "0 4px 14px rgba(249,115,22,0.3)" }}
+            onMouseEnter={e => !submitting && (e.currentTarget.style.background = "#ea6d0a")}
+            onMouseLeave={e => (e.currentTarget.style.background = "var(--accent)")}
           >
-            {submitting ? (
-              <Loader2 className="w-5 h-5 animate-spin" />
-            ) : (
-              'Submit Report'
-            )}
+            {submitting ? <><Loader2 className="w-4 h-4 animate-spin" /> Submitting…</> : "Submit Report"}
           </button>
         </form>
 
         {/* Footer */}
-        <div className="p-4 bg-slate-950/50 border-t border-white/5 text-center">
-           <p className="text-[9px] text-slate-600 italic">
-             RateMyProf PES Edition uses student reports to keep our data fresh. 
-             All submissions are reviewed before appearing in the directory.
-           </p>
+        <div className="px-6 py-4 shrink-0 text-center" style={{ borderTop: "1px solid var(--border)" }}>
+          <p className="text-[10px] italic" style={{ color: "var(--border2)" }}>
+            All submissions are reviewed by admins before appearing in the directory.
+          </p>
         </div>
       </div>
     </div>

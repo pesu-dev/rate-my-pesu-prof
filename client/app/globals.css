@@ -1,55 +1,132 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap");
 @import "tailwindcss";
 
 :root {
-  --background: #030712;
-  --foreground: #e5e7eb;
+  /* ── Light theme surfaces ── */
+  --bg:       #F8F9FA;
+  --surface:  #ffffff;
+  --surface2: #f2f3ff;
+  --border:   #e2e7ff;
+  --border2:  #c7c4d8;
+
+  /* ── Primary (indigo/blue) accent ── */
+  --accent:        #3525cd;
+  --accent-l:      #4f46e5;
+  --accent-bg:     rgba(53, 37, 205, 0.08);
+  --accent-border: rgba(53, 37, 205, 0.22);
+
+  /* ── Functional colours ── */
+  --green:  #10b981;
+  --amber:  #f59e0b;
+  --red:    #ef4444;
+  --text:   #131b2e;
+  --muted:  #464555;
+  --subtle: #777587;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-background: var(--bg);
+  --color-foreground: var(--text);
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+html {
+  scroll-behavior: smooth;
+  background: #F8F9FA !important;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: #F8F9FA !important;
+  color: #131b2e;
+  font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
+/* ─── Scrollbar ──────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: var(--surface2); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+/* ─── Skeleton shimmer (light) ───────────────────────────────── */
+@keyframes shimmer {
+  0%   { background-position: -500px 0; }
+  100% { background-position: 500px 0; }
 }
-::-webkit-scrollbar-track {
-  background: #111827;
-}
-::-webkit-scrollbar-thumb {
-  background: #374151;
-  border-radius: 3px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #4b5563;
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(0,0,0,0.04) 25%,
+    rgba(0,0,0,0.08) 50%,
+    rgba(0,0,0,0.04) 75%
+  );
+  background-size: 1000px 100%;
+  animation: shimmer 1.8s ease-in-out infinite;
+  border-radius: 8px;
 }
 
-/* Range slider thumb styling */
-input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: white;
-  cursor: pointer;
-  box-shadow: 0 0 8px rgba(99, 102, 241, 0.4);
+/* ─── Card glow on hover (light, subtle) ────────────────────── */
+.glow-green  { box-shadow: 0 4px 20px -4px rgba(16,185,129,0.20); }
+.glow-amber  { box-shadow: 0 4px 20px -4px rgba(245,158,11,0.18); }
+.glow-red    { box-shadow: 0 4px 20px -4px rgba(239,68,68,0.18); }
+.glow-orange { box-shadow: 0 4px 20px -4px rgba(249,115,22,0.18); }
+
+/* ─── Chip pills ─────────────────────────────────────────────── */
+.chip-active {
+  background: var(--accent-bg);
+  border-color: var(--accent-border);
+  color: var(--accent);
 }
-input[type="range"]::-moz-range-thumb {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: white;
-  cursor: pointer;
-  border: none;
-  box-shadow: 0 0 8px rgba(99, 102, 241, 0.4);
+.chip-inactive {
+  background: transparent;
+  border-color: var(--border2);
+  color: var(--subtle);
+}
+.chip-inactive:hover {
+  border-color: var(--accent-border);
+  color: var(--accent-l);
+}
+
+/* ─── Accent text ────────────────────────────────────────────── */
+.accent-text { color: var(--accent-l); }
+
+/* ─── Fade-up entrance ───────────────────────────────────────── */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.fade-up {
+  animation: fade-up 0.45s ease-out forwards;
+}
+
+/* ─── Hero aurora — indigo glow ──────────────────────────────── */
+.hero-aurora {
+  position: absolute; inset: 0;
+  overflow: hidden; pointer-events: none;
+}
+.hero-aurora::before {
+  content: "";
+  position: absolute; top: -40%; left: -10%;
+  width: 70%; height: 80%;
+  background: radial-gradient(ellipse, rgba(53,37,205,0.06) 0%, transparent 65%);
+  animation: aurora-drift 14s ease-in-out infinite alternate;
+}
+.hero-aurora::after {
+  content: "";
+  position: absolute; top: -20%; right: -15%;
+  width: 55%; height: 65%;
+  background: radial-gradient(ellipse, rgba(79,70,229,0.04) 0%, transparent 65%);
+  animation: aurora-drift 18s ease-in-out infinite alternate-reverse;
+}
+@keyframes aurora-drift {
+  0%   { transform: translate(0,0) scale(1); }
+  100% { transform: translate(4%, 8%) scale(1.08); }
+}
+
+/* ─── Editorial shadow ───────────────────────────────────────── */
+.editorial-shadow {
+  box-shadow: 0 1px 3px 0 rgba(0,0,0,0.06), 0 1px 2px -1px rgba(0,0,0,0.06);
 }
