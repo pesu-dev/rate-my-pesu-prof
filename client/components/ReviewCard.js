@@ -45,8 +45,8 @@ export default function ReviewCard({ review, onUpdate }) {
 
   if (isEditing) {
     return (
-      <div className="rounded-xl p-6 bg-white editorial-shadow"
-        style={{ border: "2px solid var(--accent-border)" }}>
+      <div className="rounded-xl p-6 editorial-shadow"
+        style={{ background: "var(--surface)", border: "2px solid var(--accent-border)" }}>
         <h3 className="text-sm font-semibold mb-4 flex items-center gap-2" style={{ color: "var(--text)" }}>
           <svg className="w-4 h-4" style={{ color: "var(--accent)" }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
@@ -65,8 +65,8 @@ export default function ReviewCard({ review, onUpdate }) {
 
   return (
     <article
-      className="group bg-white rounded-xl p-5 transition-all duration-200 relative editorial-shadow"
-      style={{ border: "1px solid var(--border)" }}
+      className="group rounded-xl p-5 transition-all duration-200 relative editorial-shadow"
+      style={{ background: "var(--surface)", border: "1px solid var(--border)" }}
       onMouseEnter={e => {
         e.currentTarget.style.borderColor = "var(--accent-border)";
         e.currentTarget.style.transform = "translateY(-2px)";

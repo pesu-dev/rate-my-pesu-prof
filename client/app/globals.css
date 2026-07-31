@@ -22,6 +22,32 @@
   --text:   #131b2e;
   --muted:  #464555;
   --subtle: #777587;
+
+  /* ── Theme transition ── */
+  --theme-transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+[data-theme="dark"] {
+  /* ── Dark theme surfaces ── */
+  --bg:       #000000;
+  --surface:  #111111;
+  --surface2: #1a1a1a;
+  --border:   #2a2a2a;
+  --border2:  #3a3a3a;
+
+  /* ── Keep accent same as light ── */
+  --accent:        #3525cd;
+  --accent-l:      #4f46e5;
+  --accent-bg:     rgba(53, 37, 205, 0.12);
+  --accent-border: rgba(53, 37, 205, 0.30);
+
+  /* ── Functional colours ── */
+  --green:  #34d399;
+  --amber:  #fbbf24;
+  --red:    #f87171;
+  --text:   #f0f0f0;
+  --muted:  #a0a0a0;
+  --subtle: #666666;
 }
 
 @theme inline {
@@ -34,15 +60,17 @@
 
 html {
   scroll-behavior: smooth;
-  background: #F8F9FA !important;
+  background: var(--bg);
+  transition: var(--theme-transition);
 }
 
 body {
-  background: #F8F9FA !important;
-  color: #131b2e;
+  background: var(--bg);
+  color: var(--text);
   font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: var(--theme-transition);
 }
 
 /* ─── Scrollbar ──────────────────────────────────────────────── */
@@ -51,7 +79,7 @@ body {
 ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 999px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
 
-/* ─── Skeleton shimmer (light) ───────────────────────────────── */
+/* ─── Skeleton shimmer ───────────────────────────────────────── */
 @keyframes shimmer {
   0%   { background-position: -500px 0; }
   100% { background-position: 500px 0; }
@@ -59,13 +87,35 @@ body {
 .skeleton {
   background: linear-gradient(
     90deg,
-    rgba(0,0,0,0.04) 25%,
-    rgba(0,0,0,0.08) 50%,
-    rgba(0,0,0,0.04) 75%
+    rgba(128,128,128,0.06) 25%,
+    rgba(128,128,128,0.12) 50%,
+    rgba(128,128,128,0.06) 75%
   );
   background-size: 1000px 100%;
   animation: shimmer 1.8s ease-in-out infinite;
   border-radius: 8px;
+}
+
+/* ─── Theme toggle button ────────────────────────────────────── */
+.theme-toggle {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+.theme-toggle:hover {
+  border-color: var(--accent-border);
+  background: var(--accent-bg);
+  color: var(--accent);
+  transform: rotate(15deg);
 }
 
 /* ─── Card glow on hover (light, subtle) ────────────────────── */

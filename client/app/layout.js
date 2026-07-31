@@ -1,6 +1,7 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Navbar from "../components/Navbar";
+import { ThemeProvider } from "../components/ThemeProvider";
 import { Analytics } from "@vercel/analytics/next";
 
 const geistSans = Geist({
@@ -29,10 +30,12 @@ export default function RootLayout({ children }) {
         className="antialiased flex flex-col min-h-screen"
         suppressHydrationWarning
       >
-        <Navbar />
-        <main className="flex-grow flex flex-col">
-          {children}
-        </main>
+        <ThemeProvider>
+          <Navbar />
+          <main className="flex-grow flex flex-col">
+            {children}
+          </main>
+        </ThemeProvider>
         <Analytics />
       </body>
     </html>

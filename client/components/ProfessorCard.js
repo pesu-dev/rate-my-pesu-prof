@@ -36,8 +36,8 @@ export default function ProfessorCard({ professor, index = 0 }) {
   return (
     <Link href={`/professor/${_id}`} className="block group">
       <div
-        className={`relative rounded-2xl p-6 transition-all duration-300 cursor-pointer hover:-translate-y-0.5 bg-white editorial-shadow ${cfg.glow ? `hover:${cfg.glow}` : ""}`}
-        style={{ border: "1px solid var(--border)" }}
+        className={`relative rounded-2xl p-6 transition-all duration-300 cursor-pointer hover:-translate-y-0.5 editorial-shadow ${cfg.glow ? `hover:${cfg.glow}` : ""}`}
+        style={{ background: "var(--surface)", border: "1px solid var(--border)" }}
         onMouseEnter={e => e.currentTarget.style.borderColor = "var(--accent-border)"}
         onMouseLeave={e => e.currentTarget.style.borderColor = "var(--border)"}
       >

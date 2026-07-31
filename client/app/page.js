@@ -23,7 +23,7 @@ const RATING_OPTIONS = [
 
 function SkeletonCard() {
   return (
-    <div className="bg-white border border-outline-variant/40 rounded-2xl p-6 space-y-4 editorial-shadow">
+    <div className="rounded-2xl p-6 space-y-4 editorial-shadow" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
       <div className="flex items-start justify-between">
         <div className="flex-1 space-y-2.5">
           <div className="skeleton h-4 w-3/4" />
@@ -45,12 +45,12 @@ function SkeletonCard() {
 function StatPill({ icon: Icon, value, label, delay }) {
   return (
     <div
-      className="fade-up inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full bg-white border border-outline-variant/50 editorial-shadow"
-      style={{ animationDelay: delay, opacity: 0, animationFillMode: "forwards" }}
+      className="fade-up inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full editorial-shadow"
+      style={{ background: "var(--surface)", border: "1px solid var(--border)", animationDelay: delay, opacity: 0, animationFillMode: "forwards" }}
     >
       <Icon className="w-3.5 h-3.5" style={{ color: "var(--accent-l)" }} />
-      <span className="text-sm font-semibold text-on-surface">{value}</span>
-      <span className="text-xs text-outline">{label}</span>
+      <span className="text-sm font-semibold" style={{ color: "var(--text)" }}>{value}</span>
+      <span className="text-xs" style={{ color: "var(--subtle)" }}>{label}</span>
     </div>
   );
 }
@@ -104,10 +104,10 @@ export default function HomePage() {
   const hasActiveFilters = search || minRating > 0 || selectedDepartment !== "All" || selectedCampus !== "All";
 
   return (
-    <div className="min-h-screen" style={{ background: "#F8F9FA", color: "var(--text)" }}>
+    <div className="min-h-screen" style={{ background: "var(--bg)", color: "var(--text)" }}>
 
       {/* ── Hero ──────────────────────────────────────────────── */}
-      <section className="relative pt-16 pb-14 overflow-hidden" style={{ background: "#F8F9FA" }}>
+      <section className="relative pt-16 pb-14 overflow-hidden" style={{ background: "var(--bg)" }}>
         <div className="hero-aurora" />
 
         <div className="relative z-10 max-w-3xl mx-auto px-4 text-center">
@@ -169,8 +169,8 @@ export default function HomePage() {
       {/* ── Search & Filters ───────────────────────────────────── */}
       <div className="max-w-5xl mx-auto px-4 mb-10">
         <div
-          className="rounded-2xl p-4 sm:p-5 space-y-4 bg-white editorial-shadow"
-          style={{ border: "1px solid var(--border)" }}
+          className="rounded-2xl p-4 sm:p-5 space-y-4 editorial-shadow"
+          style={{ background: "var(--surface)", border: "1px solid var(--border)" }}
         >
           {/* Search */}
           <div className="relative">
@@ -272,8 +272,8 @@ export default function HomePage() {
         {/* Empty */}
         {!loading && !error && professors.length === 0 && (
           <div className="text-center py-24">
-            <div className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4 bg-white editorial-shadow"
-              style={{ border: "1px solid var(--border)" }}>
+            <div className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4 editorial-shadow"
+              style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
               <Search className="w-5 h-5" style={{ color: "var(--subtle)" }} />
             </div>
             <p className="text-base font-semibold mb-1" style={{ color: "var(--muted)" }}>No professors found</p>
@@ -294,8 +294,8 @@ export default function HomePage() {
             {totalPages > 1 && (
               <div className="mt-12 flex items-center justify-center gap-2">
                 <button disabled={page === 1} onClick={() => setPage(p => p - 1)}
-                  className="p-2.5 rounded-xl transition-all cursor-pointer disabled:opacity-25 disabled:cursor-not-allowed bg-white editorial-shadow"
-                  style={{ border: "1px solid var(--border)", color: "var(--muted)" }}>
+                  className="p-2.5 rounded-xl transition-all cursor-pointer disabled:opacity-25 disabled:cursor-not-allowed editorial-shadow"
+                  style={{ background: "var(--surface)", border: "1px solid var(--border)", color: "var(--muted)" }}>
                   <ChevronLeft className="w-5 h-5" />
                 </button>
 
@@ -312,7 +312,7 @@ export default function HomePage() {
                         className="min-w-[36px] h-9 rounded-lg text-sm font-semibold transition-all cursor-pointer"
                         style={page === pNum
                           ? { background: "var(--accent)", color: "#fff", boxShadow: "0 4px 14px rgba(53,37,205,0.30)" }
-                          : { background: "#fff", border: "1px solid var(--border)", color: "var(--muted)" }}>
+                          : { background: "var(--surface)", border: "1px solid var(--border)", color: "var(--muted)" }}>
                         {pNum}
                       </button>
                     );
@@ -320,8 +320,8 @@ export default function HomePage() {
                 </div>
 
                 <button disabled={page === totalPages} onClick={() => setPage(p => p + 1)}
-                  className="p-2.5 rounded-xl transition-all cursor-pointer disabled:opacity-25 disabled:cursor-not-allowed bg-white editorial-shadow"
-                  style={{ border: "1px solid var(--border)", color: "var(--muted)" }}>
+                  className="p-2.5 rounded-xl transition-all cursor-pointer disabled:opacity-25 disabled:cursor-not-allowed editorial-shadow"
+                  style={{ background: "var(--surface)", border: "1px solid var(--border)", color: "var(--muted)" }}>
                   <ChevronRight className="w-5 h-5" />
                 </button>
               </div>
@@ -331,17 +331,14 @@ export default function HomePage() {
       </div>
 
       {/* ── Footer CTA ────────────────────────────────────────── */}
-      <div style={{ borderTopColor: "var(--border)" }} className="border-t bg-white">
+      <div style={{ borderTop: "1px solid var(--border)", background: "var(--surface)" }}>
         <div className="max-w-xl mx-auto text-center px-4 py-12">
           <p className="text-sm mb-4" style={{ color: "var(--subtle)" }}>
             Can't find your professor in the directory?
           </p>
           <button onClick={() => setIsModalOpen(true)}
-            className="inline-flex items-center gap-2.5 px-6 py-2.5 rounded-xl text-sm font-medium transition-all cursor-pointer bg-white editorial-shadow"
-            style={{
-              border: "1px solid var(--border)",
-              color: "var(--muted)",
-            }}
+            className="inline-flex items-center gap-2.5 px-6 py-2.5 rounded-xl text-sm font-medium transition-all cursor-pointer editorial-shadow"
+            style={{ background: "var(--surface2)", border: "1px solid var(--border)", color: "var(--muted)" }}
             onMouseEnter={e => { e.currentTarget.style.borderColor = "var(--accent-border)"; e.currentTarget.style.color = "var(--text)"; }}
             onMouseLeave={e => { e.currentTarget.style.borderColor = "var(--border)"; e.currentTarget.style.color = "var(--muted)"; }}
           >

@@ -14,7 +14,7 @@ function DetailSkeleton() {
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10 animate-pulse">
       <div className="skeleton h-4 w-32 mb-8 rounded-lg" />
-      <div className="bg-white border border-outline-variant/40 rounded-xl p-8 mb-6 editorial-shadow">
+      <div className="rounded-xl p-8 mb-6 editorial-shadow" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
         <div className="flex gap-6">
           <div className="skeleton w-20 h-20 rounded-xl flex-shrink-0" />
           <div className="flex-1 space-y-3">
@@ -62,7 +62,7 @@ export default function ProfessorDetailPage({ params }) {
 
   if (error || !professor) {
     return (
-      <div className="max-w-5xl mx-auto px-4 py-24 text-center" style={{ background: "#F8F9FA" }}>
+      <div className="max-w-5xl mx-auto px-4 py-24 text-center" style={{ background: "var(--bg)" }}>
         <p className="text-base mb-4 text-red-600">{error || "Professor not found"}</p>
         <Link href="/" className="text-sm transition-colors" style={{ color: "var(--accent-l)" }}>
           ← Back to all professors
@@ -78,7 +78,7 @@ export default function ProfessorDetailPage({ params }) {
   const ratingBorder = r >= 4 ? "rgba(16,185,129,0.25)" : r >= 3 ? "rgba(245,158,11,0.22)" : r > 0 ? "rgba(239,68,68,0.20)" : "var(--border)";
 
   return (
-    <div className="min-h-screen" style={{ background: "#F8F9FA" }}>
+    <div className="min-h-screen" style={{ background: "var(--bg)" }}>
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
         {/* ── Back link ─────────────────────────────────────── */}
@@ -95,7 +95,7 @@ export default function ProfessorDetailPage({ params }) {
         </Link>
 
         {/* ── Professor Header Card ──────────────────────────── */}
-        <section className="bg-white border border-outline-variant/40 rounded-xl p-6 sm:p-8 mb-6 editorial-shadow">
+        <section className="rounded-xl p-6 sm:p-8 mb-6 editorial-shadow" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
           {/* Breadcrumb chips */}
           <div className="flex items-center gap-2 mb-4">
             <span className="px-2 py-1 rounded text-[11px] font-semibold uppercase tracking-wider"
@@ -153,8 +153,8 @@ export default function ProfessorDetailPage({ params }) {
 
               {/* Breakdown quick stat */}
               {reviewData?.breakdown?.teachingQuality != null && (
-                <div className="flex-1 lg:flex-none min-w-[110px] bg-white rounded-xl p-4 flex flex-col items-center justify-center editorial-shadow"
-                  style={{ border: "1px solid var(--border)" }}>
+                <div className="flex-1 lg:flex-none min-w-[110px] rounded-xl p-4 flex flex-col items-center justify-center editorial-shadow"
+                  style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
                   <span className="text-2xl font-bold" style={{ color: "var(--text)" }}>
                     {reviewData.breakdown.teachingQuality?.toFixed(1) ?? "–"}
                   </span>
@@ -164,8 +164,8 @@ export default function ProfessorDetailPage({ params }) {
 
               {/* Difficulty */}
               {reviewData?.breakdown?.difficulty != null && (
-                <div className="flex-1 lg:flex-none min-w-[110px] bg-white rounded-xl p-4 flex flex-col items-center justify-center editorial-shadow"
-                  style={{ border: "1px solid var(--border)" }}>
+                <div className="flex-1 lg:flex-none min-w-[110px] rounded-xl p-4 flex flex-col items-center justify-center editorial-shadow"
+                  style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
                   <span className="text-2xl font-bold" style={{ color: "var(--text)" }}>
                     {reviewData.breakdown.difficulty?.toFixed(1) ?? "–"}
                   </span>
@@ -179,7 +179,7 @@ export default function ProfessorDetailPage({ params }) {
         {/* ── Breakdown + Write review ───────────────────────── */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           {/* Rating Breakdown */}
-          <div className="bg-white rounded-xl p-6 editorial-shadow" style={{ border: "1px solid var(--border)" }}>
+          <div className="rounded-xl p-6 editorial-shadow" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
             <h2 className="text-xs font-bold mb-5 uppercase tracking-widest" style={{ color: "var(--subtle)" }}>
               Rating Distribution
             </h2>
@@ -190,7 +190,7 @@ export default function ProfessorDetailPage({ params }) {
           </div>
 
           {/* Write a Review */}
-          <div className="bg-white rounded-xl p-6 editorial-shadow" style={{ border: "1px solid var(--border)" }}>
+          <div className="rounded-xl p-6 editorial-shadow" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
             <h2 className="text-xs font-bold mb-5 uppercase tracking-widest" style={{ color: "var(--subtle)" }}>
               Rate This Professor
             </h2>
@@ -251,7 +251,7 @@ export default function ProfessorDetailPage({ params }) {
               ))}
             </div>
           ) : (
-            <div className="bg-white rounded-xl p-12 text-center editorial-shadow" style={{ border: "1px solid var(--border)" }}>
+            <div className="rounded-xl p-12 text-center editorial-shadow" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
               <p className="text-sm" style={{ color: "var(--subtle)" }}>
                 No reviews yet — be the first to rate this professor.
               </p>

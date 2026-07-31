@@ -5,8 +5,8 @@ import { ShieldCheck, Fingerprint, Search, Flag, ChevronLeft, KeyRound } from "l
 
 const Section = ({ icon: Icon, iconColor, iconBg, title, children }) => (
   <section
-    className="bg-white rounded-xl p-6 sm:p-8 editorial-shadow"
-    style={{ border: "1px solid var(--border)" }}
+    className="rounded-xl p-6 sm:p-8 editorial-shadow"
+    style={{ background: "var(--surface)", border: "1px solid var(--border)" }}
   >
     <div className="flex items-center gap-3 mb-5">
       <div
@@ -29,7 +29,7 @@ export default function PrivacyPage() {
   return (
     <div
       className="min-h-screen pt-8 pb-20 px-4 sm:px-6"
-      style={{ background: "#F8F9FA", color: "var(--text)" }}
+      style={{ background: "var(--bg)", color: "var(--text)" }}
     >
       <div className="max-w-3xl mx-auto">
 

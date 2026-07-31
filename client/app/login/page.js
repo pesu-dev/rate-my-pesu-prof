@@ -43,7 +43,7 @@ export default function LoginPage() {
   return (
     <div
       className="min-h-screen flex items-center justify-center px-4 py-16 relative overflow-hidden"
-      style={{ background: "#F8F9FA" }}
+      style={{ background: "var(--bg)" }}
     >
       {/* Subtle aurora background */}
       <div className="hero-aurora" />
@@ -87,7 +87,7 @@ export default function LoginPage() {
                 <div
                   className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-56 p-3 rounded-xl text-[11px] leading-relaxed text-center z-20"
                   style={{
-                    background: "#fff",
+                    background: "var(--surface)",
                     border: "1px solid var(--border)",
                     color: "var(--muted)",
                     boxShadow: "0 8px 24px rgba(0,0,0,0.10)",
@@ -106,8 +106,8 @@ export default function LoginPage() {
 
         {/* Form card */}
         <div
-          className="bg-white rounded-2xl p-6 sm:p-8 mb-4 editorial-shadow"
-          style={{ border: "1px solid var(--border)" }}
+          className="rounded-2xl p-6 sm:p-8 mb-4 editorial-shadow"
+          style={{ background: "var(--surface)", border: "1px solid var(--border)" }}
         >
           {/* Error banner */}
           {error && (
@@ -184,7 +184,7 @@ export default function LoginPage() {
                   onChange={(e) => setAccepted(e.target.checked)}
                   className="w-4 h-4 rounded appearance-none cursor-pointer transition-all"
                   style={{
-                    background: accepted ? "var(--accent)" : "#fff",
+                    background: accepted ? "var(--accent)" : "var(--surface2)",
                     border: `1.5px solid ${accepted ? "var(--accent)" : "var(--border2)"}`,
                   }}
                 />
