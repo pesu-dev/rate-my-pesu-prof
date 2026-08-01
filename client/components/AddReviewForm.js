@@ -98,7 +98,9 @@ export default function AddReviewForm({ professorId, professorName, onReviewAdde
         <Link
           href={`/login?redirect=${typeof window !== 'undefined' ? encodeURIComponent(window.location.pathname) : ''}`}
           className="block w-full py-3 px-6 rounded-xl text-sm font-semibold text-white transition-all"
-          style={{ background: "var(--accent)", boxShadow: "0 4px 14px rgba(249,115,22,0.3)" }}
+          style={{ background: "var(--accent)", boxShadow: "0 4px 14px var(--accent-border)" }}
+          onMouseEnter={e => (e.currentTarget.style.background = "var(--accent-l)")}
+          onMouseLeave={e => (e.currentTarget.style.background = "var(--accent)")}
         >
           Sign In with PESU Academy
         </Link>
@@ -132,7 +134,7 @@ export default function AddReviewForm({ professorId, professorName, onReviewAdde
       <div>
         <div className="flex items-center justify-between mb-2">
           <label className="text-sm font-medium" style={{ color: "var(--muted)" }}>Review <span style={{ color: "var(--subtle)" }}>(optional)</span></label>
-          <span className="text-xs" style={{ color: formData.reviewText.length > 280 ? "#f87171" : "var(--subtle)" }}>
+          <span className="text-xs" style={{ color: formData.reviewText.length > 280 ? "var(--red-text)" : "var(--subtle)" }}>
             {formData.reviewText.length}/300
           </span>
         </div>
@@ -166,13 +168,13 @@ export default function AddReviewForm({ professorId, professorName, onReviewAdde
       {/* Error / Success */}
       {error && (
         <div className="rounded-xl px-4 py-3 text-sm"
-          style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)", color: "#f87171" }}>
+          style={{ background: "var(--red-bg)", border: "1px solid var(--red-border)", color: "var(--red-text)" }}>
           {error}
         </div>
       )}
       {success && (
         <div className="rounded-xl px-4 py-3 text-sm"
-          style={{ background: "rgba(16,185,129,0.08)", border: "1px solid rgba(16,185,129,0.2)", color: "#34d399" }}>
+          style={{ background: "var(--green-bg)", border: "1px solid var(--green-border)", color: "var(--green-text)" }}>
           Review submitted successfully! 🎉
         </div>
       )}
@@ -180,8 +182,8 @@ export default function AddReviewForm({ professorId, professorName, onReviewAdde
       {/* Submit */}
       <button type="submit" disabled={submitting}
         className="w-full py-3 rounded-xl text-sm font-semibold text-white transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-        style={{ background: "var(--accent)", boxShadow: "0 4px 14px rgba(249,115,22,0.3)" }}
-        onMouseEnter={e => !submitting && (e.currentTarget.style.background = "#ea6d0a")}
+        style={{ background: "var(--accent)", boxShadow: "0 4px 14px var(--accent-border)" }}
+        onMouseEnter={e => !submitting && (e.currentTarget.style.background = "var(--accent-l)")}
         onMouseLeave={e => (e.currentTarget.style.background = "var(--accent)")}
       >
         {submitting ? "Submitting…" : "Submit Review"}

@@ -5,20 +5,20 @@ import StarRating from "./StarRating";
 
 function getRatingConfig(rating) {
   if (rating >= 4.5) return {
-    bg: "rgba(16,185,129,0.10)", text: "#059669", border: "rgba(16,185,129,0.25)",
-    glow: "glow-green", badge: "Top Rated", badgeBg: "rgba(16,185,129,0.08)",
-    badgeText: "#059669", badgeBorder: "rgba(16,185,129,0.22)",
+    bg: "var(--green-bg)", text: "var(--green-text)", border: "var(--green-border)",
+    glow: "glow-green", badge: "Top Rated", badgeBg: "var(--green-bg)",
+    badgeText: "var(--green-text)", badgeBorder: "var(--green-border)",
   };
   if (rating >= 4) return {
-    bg: "rgba(16,185,129,0.08)", text: "#059669", border: "rgba(16,185,129,0.20)",
+    bg: "var(--green-bg)", text: "var(--green-text)", border: "var(--green-border)",
     glow: "glow-green", badge: null,
   };
   if (rating >= 3) return {
-    bg: "rgba(245,158,11,0.08)", text: "#b45309", border: "rgba(245,158,11,0.22)",
+    bg: "var(--amber-bg)", text: "var(--amber-text)", border: "var(--amber-border)",
     glow: "glow-amber", badge: null,
   };
   if (rating > 0) return {
-    bg: "rgba(239,68,68,0.08)", text: "#dc2626", border: "rgba(239,68,68,0.20)",
+    bg: "var(--red-bg)", text: "var(--red-text)", border: "var(--red-border)",
     glow: "glow-red", badge: null,
   };
   // No reviews

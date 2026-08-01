@@ -26,8 +26,8 @@ const inputStyle = {
 // ── Status badge ─────────────────────────────────────────────────
 function StatusBadge({ status }) {
   const cfg = status === "Approved"
-    ? { bg: "rgba(16,185,129,0.08)", color: "#059669", border: "rgba(16,185,129,0.22)", icon: <Check className="w-3 h-3" /> }
-    : { bg: "rgba(239,68,68,0.08)", color: "#dc2626", border: "rgba(239,68,68,0.20)", icon: <X className="w-3 h-3" /> };
+    ? { bg: "var(--green-bg)", color: "var(--green-text)", border: "var(--green-border)", icon: <Check className="w-3 h-3" /> }
+    : { bg: "var(--red-bg)", color: "var(--red-text)", border: "var(--red-border)", icon: <X className="w-3 h-3" /> };
   return (
     <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full"
       style={{ background: cfg.bg, color: cfg.color, border: `1px solid ${cfg.border}` }}>
@@ -41,7 +41,7 @@ function Skeleton() {
   return (
     <div className="space-y-3">
       {[...Array(3)].map((_, i) => (
-        <div key={i} className="bg-white rounded-xl p-5 animate-pulse editorial-shadow" style={{ border: "1px solid var(--border)" }}>
+        <div key={i} className="rounded-xl p-5 animate-pulse editorial-shadow" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
           <div className="flex gap-4">
             <div className="skeleton w-10 h-10 rounded-xl shrink-0" />
             <div className="flex-1 space-y-2">
@@ -58,7 +58,7 @@ function Skeleton() {
 // ── Stat card ────────────────────────────────────────────────────
 function StatCard({ label, value, color, accent }) {
   return (
-    <div className="bg-white rounded-xl p-5 text-center editorial-shadow" style={{ border: "1px solid var(--border)" }}>
+    <div className="rounded-xl p-5 text-center editorial-shadow" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
       <p className="text-3xl font-black tabular-nums" style={{ color }}>{value}</p>
       <p className="text-[10px] uppercase tracking-widest mt-1.5 font-semibold" style={{ color: "var(--subtle)" }}>{label}</p>
       {accent && <div className="mx-auto mt-2 h-0.5 w-8 rounded-full" style={{ background: color, opacity: 0.4 }} />}
@@ -70,8 +70,8 @@ function StatCard({ label, value, color, accent }) {
 function RequestRow({ request, onApprove, onReject }) {
   return (
     <div
-      className="bg-white rounded-xl p-5 sm:p-6 transition-all editorial-shadow"
-      style={{ border: "1px solid var(--border)" }}
+      className="rounded-xl p-5 sm:p-6 transition-all editorial-shadow"
+      style={{ background: "var(--surface)", border: "1px solid var(--border)" }}
       onMouseEnter={e => e.currentTarget.style.borderColor = "var(--accent-border)"}
       onMouseLeave={e => e.currentTarget.style.borderColor = "var(--border)"}
     >
@@ -129,7 +129,7 @@ function RequestRow({ request, onApprove, onReject }) {
           <button
             onClick={() => onApprove(request)}
             className="flex-1 md:flex-none flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white transition-all cursor-pointer"
-            style={{ background: "var(--accent)", boxShadow: "0 4px 12px rgba(53,37,205,0.22)" }}
+            style={{ background: "var(--accent)", boxShadow: "0 4px 12px var(--accent-border)" }}
             onMouseEnter={e => e.currentTarget.style.background = "var(--accent-l)"}
             onMouseLeave={e => e.currentTarget.style.background = "var(--accent)"}
           >
@@ -139,7 +139,7 @@ function RequestRow({ request, onApprove, onReject }) {
             onClick={() => { if (confirm("Reject this request?")) onReject(request._id); }}
             className="flex-1 md:flex-none flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all cursor-pointer"
             style={{ background: "var(--surface2)", border: "1px solid var(--border)", color: "var(--muted)" }}
-            onMouseEnter={e => { e.currentTarget.style.background = "rgba(239,68,68,0.07)"; e.currentTarget.style.color = "#dc2626"; e.currentTarget.style.borderColor = "rgba(239,68,68,0.22)"; }}
+            onMouseEnter={e => { e.currentTarget.style.background = "var(--red-bg)"; e.currentTarget.style.color = "var(--red-text)"; e.currentTarget.style.borderColor = "var(--red-border)"; }}
             onMouseLeave={e => { e.currentTarget.style.background = "var(--surface2)"; e.currentTarget.style.color = "var(--muted)"; e.currentTarget.style.borderColor = "var(--border)"; }}
           >
             <XCircle className="w-3.5 h-3.5" /> Reject
@@ -164,12 +164,12 @@ function EditApproveModal({ request, onClose, onConfirm }) {
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      style={{ background: "rgba(0,0,0,0.35)", backdropFilter: "blur(6px)" }}
+      style={{ background: "rgba(0,0,0,0.50)", backdropFilter: "blur(6px)" }}
     >
       <div className="absolute inset-0" onClick={onClose} />
       <div
         className="relative w-full max-w-md rounded-2xl overflow-hidden editorial-shadow"
-        style={{ background: "#fff", border: "1px solid var(--border)" }}
+        style={{ background: "var(--surface)", border: "1px solid var(--border)" }}
       >
         {/* Modal header */}
         <div
@@ -306,7 +306,7 @@ export default function AdminDashboard() {
   if (!currentUser) return null;
 
   return (
-    <div className="min-h-screen" style={{ background: "#F8F9FA", color: "var(--text)" }}>
+    <div className="min-h-screen" style={{ background: "var(--bg)", color: "var(--text)" }}>
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
         {/* ── Top bar ─────────────────────────────────────────── */}
@@ -330,9 +330,9 @@ export default function AdminDashboard() {
             <button
               onClick={() => { clearToken(); router.push("/login"); }}
               className="p-2.5 rounded-xl transition-all cursor-pointer"
-              style={{ background: "#fff", border: "1px solid var(--border)", color: "var(--muted)" }}
-              onMouseEnter={e => { e.currentTarget.style.background = "rgba(239,68,68,0.07)"; e.currentTarget.style.color = "#dc2626"; e.currentTarget.style.borderColor = "rgba(239,68,68,0.22)"; }}
-              onMouseLeave={e => { e.currentTarget.style.background = "#fff"; e.currentTarget.style.color = "var(--muted)"; e.currentTarget.style.borderColor = "var(--border)"; }}
+              style={{ background: "var(--surface2)", border: "1px solid var(--border)", color: "var(--muted)" }}
+              onMouseEnter={e => { e.currentTarget.style.background = "var(--red-bg)"; e.currentTarget.style.color = "var(--red-text)"; e.currentTarget.style.borderColor = "var(--red-border)"; }}
+              onMouseLeave={e => { e.currentTarget.style.background = "var(--surface2)"; e.currentTarget.style.color = "var(--muted)"; e.currentTarget.style.borderColor = "var(--border)"; }}
               title="Logout"
             >
               <LogOut className="w-4 h-4" />
@@ -367,9 +367,9 @@ export default function AdminDashboard() {
         {/* ── Stats row ───────────────────────────────────────── */}
         {!loading && (
           <div className="grid grid-cols-3 gap-3 mb-8">
-            <StatCard label="Total Requests" value={requests.length}  color="var(--text)"   accent />
-            <StatCard label="Pending"        value={pending.length}   color="#b45309"       accent />
-            <StatCard label="Processed"      value={processed.length} color="#059669"       accent />
+            <StatCard label="Total Requests" value={requests.length}  color="var(--text)"       accent />
+            <StatCard label="Pending"        value={pending.length}   color="var(--amber-text)" accent />
+            <StatCard label="Processed"      value={processed.length} color="var(--green-text)" accent />
           </div>
         )}
 
@@ -377,7 +377,7 @@ export default function AdminDashboard() {
         {error && (
           <div
             className="rounded-xl px-4 py-3 mb-6 text-sm flex items-center gap-2"
-            style={{ background: "rgba(239,68,68,0.06)", border: "1px solid rgba(239,68,68,0.18)", color: "#dc2626" }}
+            style={{ background: "var(--red-bg)", border: "1px solid var(--red-border)", color: "var(--red-text)" }}
           >
             <AlertCircle className="w-4 h-4 shrink-0" />{error}
           </div>
@@ -389,13 +389,13 @@ export default function AdminDashboard() {
             {/* ── Pending ─────────────────────────────────────── */}
             <section>
               <div className="flex items-center gap-3 mb-5">
-                <Clock className="w-4 h-4" style={{ color: "#b45309" }} />
+                <Clock className="w-4 h-4" style={{ color: "var(--amber-text)" }} />
                 <h2 className="text-sm font-bold uppercase tracking-widest" style={{ color: "var(--muted)" }}>
                   Pending Approval
                 </h2>
                 <span
                   className="text-xs px-2 py-0.5 rounded-full font-bold"
-                  style={{ background: "rgba(245,158,11,0.08)", color: "#b45309", border: "1px solid rgba(245,158,11,0.22)" }}
+                  style={{ background: "var(--amber-bg)", color: "var(--amber-text)", border: "1px solid var(--amber-border)" }}
                 >
                   {pending.length}
                 </span>
@@ -403,14 +403,14 @@ export default function AdminDashboard() {
 
               {pending.length === 0 ? (
                 <div
-                  className="bg-white rounded-xl p-12 text-center editorial-shadow"
-                  style={{ border: "1px dashed var(--border2)" }}
+                  className="rounded-xl p-12 text-center editorial-shadow"
+                  style={{ background: "var(--surface)", border: "1px dashed var(--border2)" }}
                 >
                   <div
                     className="w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-3"
-                    style={{ background: "rgba(16,185,129,0.08)", border: "1px solid rgba(16,185,129,0.18)" }}
+                    style={{ background: "var(--green-bg)", border: "1px solid var(--green-border)" }}
                   >
-                    <CheckCircle className="w-6 h-6" style={{ color: "#059669" }} />
+                    <CheckCircle className="w-6 h-6" style={{ color: "var(--green-text)" }} />
                   </div>
                   <p className="text-sm font-semibold mb-1" style={{ color: "var(--muted)" }}>All caught up!</p>
                   <p className="text-xs" style={{ color: "var(--subtle)" }}>No pending requests at this time.</p>
@@ -444,15 +444,15 @@ export default function AdminDashboard() {
                   {processed.slice(0, 10).map(req => (
                     <div
                       key={req._id}
-                      className="bg-white rounded-xl px-4 py-3 flex items-center justify-between editorial-shadow"
-                      style={{ border: "1px solid var(--border)", opacity: 0.85 }}
+                      className="rounded-xl px-4 py-3 flex items-center justify-between editorial-shadow"
+                      style={{ background: "var(--surface)", border: "1px solid var(--border)", opacity: 0.85 }}
                     >
                       <div className="flex items-center gap-3">
                         <div
                           className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
                           style={req.status === "Approved"
-                            ? { background: "rgba(16,185,129,0.08)", color: "#059669" }
-                            : { background: "rgba(239,68,68,0.08)", color: "#dc2626" }}
+                            ? { background: "var(--green-bg)", color: "var(--green-text)" }
+                            : { background: "var(--red-bg)", color: "var(--red-text)" }}
                         >
                           {req.status === "Approved" ? <Check className="w-3.5 h-3.5" /> : <X className="w-3.5 h-3.5" />}
                         </div>

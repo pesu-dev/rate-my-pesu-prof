@@ -1,6 +1,12 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap");
 @import "tailwindcss";
 
+/* ─── Tailwind v4: wire dark: variant to data-theme attribute ─────────
+   Without this, Tailwind's dark: prefix does nothing (there's no
+   tailwind.config in v4). This tells the compiler that `dark:foo`
+   should apply when any ancestor has [data-theme="dark"].          */
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+
 :root {
   /* ── Light theme surfaces ── */
   --bg:       #F8F9FA;
@@ -15,10 +21,24 @@
   --accent-bg:     rgba(53, 37, 205, 0.08);
   --accent-border: rgba(53, 37, 205, 0.22);
 
-  /* ── Functional colours ── */
-  --green:  #10b981;
-  --amber:  #f59e0b;
-  --red:    #ef4444;
+  /* ── Functional colours & badges (Light) ── */
+  --green:        #10b981;
+  --green-text:   #047857;
+  --green-bg:     rgba(16,185,129,0.08);
+  --green-border: rgba(16,185,129,0.22);
+
+  --amber:        #f59e0b;
+  --amber-text:   #b45309;
+  --amber-bg:     rgba(245,158,11,0.08);
+  --amber-border: rgba(245,158,11,0.22);
+
+  --red:          #ef4444;
+  --red-text:     #dc2626;
+  --red-bg:       rgba(239,68,68,0.08);
+  --red-border:   rgba(239,68,68,0.20);
+
+  --bar-track:    rgba(0,0,0,0.06);
+
   --text:   #131b2e;
   --muted:  #464555;
   --subtle: #777587;
@@ -28,26 +48,40 @@
 }
 
 [data-theme="dark"] {
-  /* ── Dark theme surfaces ── */
-  --bg:       #000000;
-  --surface:  #111111;
-  --surface2: #1a1a1a;
-  --border:   #2a2a2a;
-  --border2:  #3a3a3a;
+  /* ── Dark theme surfaces — OLED Pitch Black #000000 ── */
+  --bg:       #000000;                    /* pitch black OLED base                */
+  --surface:  rgba(12, 16, 26, 0.85);     /* dark obsidian glass card             */
+  --surface2: #0f1420;                    /* dark secondary input surface         */
+  --border:   rgba(0, 180, 216, 0.16);     /* subtle cyan glass border             */
+  --border2:  rgba(0, 180, 216, 0.28);     /* slightly stronger cyan edge          */
 
-  /* ── Keep accent same as light ── */
-  --accent:        #3525cd;
-  --accent-l:      #4f46e5;
-  --accent-bg:     rgba(53, 37, 205, 0.12);
-  --accent-border: rgba(53, 37, 205, 0.30);
+  /* ── Cyan accent ── */
+  --accent:        #00b4d8;
+  --accent-l:      #48cae4;
+  --accent-bg:     rgba(0, 180, 216, 0.10);
+  --accent-border: rgba(0, 180, 216, 0.28);
 
-  /* ── Functional colours ── */
-  --green:  #34d399;
-  --amber:  #fbbf24;
-  --red:    #f87171;
-  --text:   #f0f0f0;
-  --muted:  #a0a0a0;
-  --subtle: #666666;
+  /* ── Functional colours & badges (Dark) ── */
+  --green:        #34d399;
+  --green-text:   #34d399;
+  --green-bg:     rgba(52,211,153,0.12);
+  --green-border: rgba(52,211,153,0.30);
+
+  --amber:        #fbbf24;
+  --amber-text:   #fbbf24;
+  --amber-bg:     rgba(251,191,36,0.12);
+  --amber-border: rgba(251,191,36,0.30);
+
+  --red:          #f87171;
+  --red-text:     #f87171;
+  --red-bg:       rgba(248,113,113,0.12);
+  --red-border:   rgba(248,113,113,0.30);
+
+  --bar-track:    rgba(255,255,255,0.08);
+
+  --text:   #f0f9ff;                     /* crisp sky white                      */
+  --muted:  #94a3b8;                     /* slate gray-blue                      */
+  --subtle: #64748b;                     /* muted slate                          */
 }
 
 @theme inline {
@@ -64,6 +98,11 @@ html {
   transition: var(--theme-transition);
 }
 
+/* Dark mode: OLED pitch black base */
+[data-theme="dark"] html {
+  background: #000000;
+}
+
 body {
   background: var(--bg);
   color: var(--text);
@@ -71,6 +110,11 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   transition: var(--theme-transition);
+}
+
+/* Body is transparent in dark so the html base colour shows */
+[data-theme="dark"] body {
+  background: transparent;
 }
 
 /* ─── Scrollbar ──────────────────────────────────────────────── */
@@ -87,13 +131,22 @@ body {
 .skeleton {
   background: linear-gradient(
     90deg,
-    rgba(128,128,128,0.06) 25%,
-    rgba(128,128,128,0.12) 50%,
-    rgba(128,128,128,0.06) 75%
+    rgba(128, 128, 128, 0.06) 25%,
+    rgba(128, 128, 128, 0.12) 50%,
+    rgba(128, 128, 128, 0.06) 75%
   );
   background-size: 1000px 100%;
   animation: shimmer 1.8s ease-in-out infinite;
   border-radius: 8px;
+}
+[data-theme="dark"] .skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(0, 180, 216, 0.05) 25%,
+    rgba(99, 102, 241, 0.10) 50%,
+    rgba(0, 180, 216, 0.05) 75%
+  );
+  background-size: 1000px 100%;
 }
 
 /* ─── Theme toggle button ────────────────────────────────────── */
@@ -118,11 +171,17 @@ body {
   transform: rotate(15deg);
 }
 
-/* ─── Card glow on hover (light, subtle) ────────────────────── */
-.glow-green  { box-shadow: 0 4px 20px -4px rgba(16,185,129,0.20); }
-.glow-amber  { box-shadow: 0 4px 20px -4px rgba(245,158,11,0.18); }
-.glow-red    { box-shadow: 0 4px 20px -4px rgba(239,68,68,0.18); }
-.glow-orange { box-shadow: 0 4px 20px -4px rgba(249,115,22,0.18); }
+/* ─── Card glow on hover ─────────────────────────────────────── */
+.glow-green  { box-shadow: 0 4px 20px -4px rgba(52,211,153,0.22); }
+.glow-amber  { box-shadow: 0 4px 20px -4px rgba(251,191,36,0.20); }
+.glow-red    { box-shadow: 0 4px 20px -4px rgba(248,113,113,0.20); }
+.glow-orange { box-shadow: 0 4px 20px -4px rgba(249,115,22,0.20); }
+
+/* ─── Dark-mode card glow override — cyan tint ───────────────── */
+[data-theme="dark"] .glow-green  { box-shadow: 0 4px 24px -4px rgba(0,180,216,0.18), 0 4px 20px -4px rgba(52,211,153,0.14); }
+[data-theme="dark"] .glow-amber  { box-shadow: 0 4px 24px -4px rgba(0,180,216,0.14), 0 4px 20px -4px rgba(251,191,36,0.14); }
+[data-theme="dark"] .glow-red    { box-shadow: 0 4px 24px -4px rgba(0,180,216,0.14), 0 4px 20px -4px rgba(248,113,113,0.14); }
+[data-theme="dark"] .glow-orange { box-shadow: 0 4px 24px -4px rgba(0,180,216,0.14), 0 4px 20px -4px rgba(249,115,22,0.14); }
 
 /* ─── Chip pills ─────────────────────────────────────────────── */
 .chip-active {
@@ -152,7 +211,7 @@ body {
   animation: fade-up 0.45s ease-out forwards;
 }
 
-/* ─── Hero aurora — indigo glow ──────────────────────────────── */
+/* ─── Hero aurora — cyan/blue glow in dark, indigo in light ─── */
 .hero-aurora {
   position: absolute; inset: 0;
   overflow: hidden; pointer-events: none;
@@ -171,6 +230,12 @@ body {
   background: radial-gradient(ellipse, rgba(79,70,229,0.04) 0%, transparent 65%);
   animation: aurora-drift 18s ease-in-out infinite alternate-reverse;
 }
+[data-theme="dark"] .hero-aurora::before {
+  background: radial-gradient(ellipse, rgba(0,180,216,0.12) 0%, rgba(3,105,161,0.06) 50%, transparent 70%);
+}
+[data-theme="dark"] .hero-aurora::after {
+  background: radial-gradient(ellipse, rgba(72,202,228,0.08) 0%, rgba(0,180,216,0.04) 50%, transparent 70%);
+}
 @keyframes aurora-drift {
   0%   { transform: translate(0,0) scale(1); }
   100% { transform: translate(4%, 8%) scale(1.08); }
@@ -179,4 +244,34 @@ body {
 /* ─── Editorial shadow ───────────────────────────────────────── */
 .editorial-shadow {
   box-shadow: 0 1px 3px 0 rgba(0,0,0,0.06), 0 1px 2px -1px rgba(0,0,0,0.06);
+}
+[data-theme="dark"] .editorial-shadow {
+  box-shadow: 0 1px 3px 0 rgba(0,0,0,0.3), 0 1px 2px -1px rgba(0,0,0,0.2),
+              0 0 0 1px rgba(0, 180, 216, 0.06);
+}
+
+/* ─── gradient-background-4 component ───────────────────────────────
+   Applied by components/ui/gradient-background-4.js via layout.js.
+   Uses [data-theme] selectors (same as all other dark-mode rules)
+   instead of Tailwind's dark: variant — avoids v4 arbitrary-value
+   compilation issues with multi-token custom properties.
+
+   Gradient origin: 50% -50% (above viewport center) so only the
+   soft tail/halo is visible at the top of the screen.              */
+.gradient-bg-4 {
+  /* Light: very soft blue-100 bloom from top */
+  background: radial-gradient(
+    125% 125% at 50% -50%,
+    rgba(0, 40, 85, 0.12) 40%,
+    transparent 100%
+  );
+}
+[data-theme="dark"] .gradient-bg-4 {
+  /* Dark: Pure pitch black base with soft top ambient cyan/indigo bloom */
+  background: radial-gradient(
+    120% 100% at 50% -25%,
+    rgba(0, 180, 216, 0.16) 0%,
+    rgba(53, 37, 205, 0.08) 45%,
+    transparent 80%
+  );
 }

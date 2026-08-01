@@ -102,7 +102,7 @@ export default function EditReviewForm({ review, onReviewUpdated, onCancel }) {
 
       {error && (
         <div className="rounded-xl px-4 py-3 text-sm"
-          style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)", color: "#f87171" }}>
+          style={{ background: "var(--red-bg)", border: "1px solid var(--red-border)", color: "var(--red-text)" }}>
           {error}
         </div>
       )}
@@ -116,7 +116,10 @@ export default function EditReviewForm({ review, onReviewUpdated, onCancel }) {
         </button>
         <button type="submit" disabled={submitting}
           className="flex-[2] py-2.5 rounded-xl text-sm font-semibold text-white transition-all cursor-pointer disabled:opacity-50"
-          style={{ background: "var(--accent)", boxShadow: "0 4px 14px rgba(249,115,22,0.3)" }}>
+          style={{ background: "var(--accent)", boxShadow: "0 4px 14px var(--accent-border)" }}
+          onMouseEnter={e => !submitting && (e.currentTarget.style.background = "var(--accent-l)")}
+          onMouseLeave={e => (e.currentTarget.style.background = "var(--accent)")}
+        >
           {submitting ? "Saving…" : "Save Changes"}
         </button>
       </div>

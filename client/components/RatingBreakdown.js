@@ -9,7 +9,7 @@ function sentimentToPercent(score) {
 function RatingBar({ value, color }) {
   const pct = value ? (value / 5) * 100 : 0;
   return (
-    <div className="relative h-3 w-full rounded-full overflow-hidden" style={{ background: "rgba(0,0,0,0.06)", boxShadow: "inset 0 1px 2px rgba(0,0,0,0.08)" }}>
+    <div className="relative h-3 w-full rounded-full overflow-hidden" style={{ background: "var(--bar-track)", boxShadow: "inset 0 1px 2px rgba(0,0,0,0.08)" }}>
       <div
         className="absolute left-0 top-0 h-full rounded-full transition-all duration-700 ease-out"
         style={{ width: `${pct}%`, background: color }}
@@ -19,11 +19,11 @@ function RatingBar({ value, color }) {
 }
 
 const CATEGORIES = [
-  { key: "overall",             label: "Overall",             color: "#3525cd" },
-  { key: "teachingQuality",     label: "Teaching Quality",    color: "#059669" },
-  { key: "difficulty",          label: "Ease of Course",      color: "#2563eb" },
-  { key: "gradingStrictness",   label: "Grading",             color: "#b45309" },
-  { key: "attendanceStrictness",label: "Attendance",          color: "#7c3aed" },
+  { key: "overall",             label: "Overall",             color: "var(--accent)" },
+  { key: "teachingQuality",     label: "Teaching Quality",    color: "var(--green)" },
+  { key: "difficulty",          label: "Ease of Course",      color: "var(--accent-l)" },
+  { key: "gradingStrictness",   label: "Grading",             color: "var(--amber)" },
+  { key: "attendanceStrictness",label: "Attendance",          color: "#a78bfa" },
 ];
 
 export default function RatingBreakdown({ breakdown }) {
@@ -32,10 +32,10 @@ export default function RatingBreakdown({ breakdown }) {
   const hasSentiment = breakdown.averageSentimentScore !== undefined && breakdown.averageSentimentScore !== null;
   const sentScore = breakdown.averageSentimentScore ?? 0;
   const sentPct = sentimentToPercent(sentScore);
-  const sentColor = sentScore > 0.2 ? "#34d399" : sentScore < -0.2 ? "#f87171" : "#71717a";
+  const sentColor = sentScore > 0.2 ? "var(--green)" : sentScore < -0.2 ? "var(--red)" : "var(--subtle)";
   const sentLabel = sentScore > 0.2 ? "Positive" : sentScore < -0.2 ? "Negative" : "Neutral";
-  const sentBg = sentScore > 0.2 ? "rgba(16,185,129,0.1)" : sentScore < -0.2 ? "rgba(239,68,68,0.1)" : "var(--surface2)";
-  const sentBorder = sentScore > 0.2 ? "rgba(16,185,129,0.25)" : sentScore < -0.2 ? "rgba(239,68,68,0.25)" : "var(--border)";
+  const sentBg = sentScore > 0.2 ? "var(--green-bg)" : sentScore < -0.2 ? "var(--red-bg)" : "var(--surface2)";
+  const sentBorder = sentScore > 0.2 ? "var(--green-border)" : sentScore < -0.2 ? "var(--red-border)" : "var(--border)";
 
   return (
     <div className="space-y-4">

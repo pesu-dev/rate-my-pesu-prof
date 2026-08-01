@@ -145,7 +145,7 @@ export default function Navbar() {
                 className="text-sm font-semibold px-5 py-2 rounded-xl transition-all active:scale-95 text-white"
                 style={{
                   background: "var(--accent)",
-                  boxShadow: "0 4px 14px rgba(53,37,205,0.25)",
+                  boxShadow: "0 4px 14px var(--accent-border)",
                 }}
                 onMouseEnter={e => e.currentTarget.style.background = "var(--accent-l)"}
                 onMouseLeave={e => e.currentTarget.style.background = "var(--accent)"}

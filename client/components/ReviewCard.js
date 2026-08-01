@@ -31,10 +31,10 @@ export default function ReviewCard({ review, onUpdate }) {
     }
   };
 
-  // Light-theme-appropriate rating colors
-  const ratingColor  = rating >= 4 ? "#059669" : rating >= 3 ? "#b45309" : "#dc2626";
-  const ratingBg     = rating >= 4 ? "rgba(16,185,129,0.08)" : rating >= 3 ? "rgba(245,158,11,0.08)" : "rgba(239,68,68,0.08)";
-  const ratingBorder = rating >= 4 ? "rgba(16,185,129,0.22)" : rating >= 3 ? "rgba(245,158,11,0.22)" : "rgba(239,68,68,0.20)";
+  // Theme-adaptive rating colors
+  const ratingColor  = rating >= 4 ? "var(--green-text)" : rating >= 3 ? "var(--amber-text)" : "var(--red-text)";
+  const ratingBg     = rating >= 4 ? "var(--green-bg)"   : rating >= 3 ? "var(--amber-bg)"   : "var(--red-bg)";
+  const ratingBorder = rating >= 4 ? "var(--green-border)": rating >= 3 ? "var(--amber-border)": "var(--red-border)";
 
   const miniFields = [
     { label: "Teaching",   value: teachingQuality },
@@ -92,10 +92,10 @@ export default function ReviewCard({ review, onUpdate }) {
         {isAdmin() && (
           <button onClick={handleDelete} disabled={isDeleting}
             className="p-1.5 rounded-lg cursor-pointer transition-colors disabled:opacity-50"
-            style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.20)", color: "#dc2626" }}
+            style={{ background: "var(--red-bg)", border: "1px solid var(--red-border)", color: "var(--red-text)" }}
             title="Delete (Admin)">
             {isDeleting
-              ? <div className="w-3.5 h-3.5 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: "#dc2626" }} />
+              ? <div className="w-3.5 h-3.5 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: "var(--red-text)" }} />
               : <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
                     d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -164,14 +164,14 @@ export default function ReviewCard({ review, onUpdate }) {
                 <div className="flex justify-end mt-2">
                   <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full"
                     style={{
-                      background: sentimentLabel === "positive" ? "rgba(16,185,129,0.08)"
-                                : sentimentLabel === "negative" ? "rgba(239,68,68,0.08)"
+                      background: sentimentLabel === "positive" ? "var(--green-bg)"
+                                : sentimentLabel === "negative" ? "var(--red-bg)"
                                 : "var(--surface2)",
-                      color: sentimentLabel === "positive" ? "#059669"
-                           : sentimentLabel === "negative" ? "#dc2626"
+                      color: sentimentLabel === "positive" ? "var(--green-text)"
+                           : sentimentLabel === "negative" ? "var(--red-text)"
                            : "var(--subtle)",
-                      border: `1px solid ${sentimentLabel === "positive" ? "rgba(16,185,129,0.22)"
-                                         : sentimentLabel === "negative" ? "rgba(239,68,68,0.20)"
+                      border: `1px solid ${sentimentLabel === "positive" ? "var(--green-border)"
+                                         : sentimentLabel === "negative" ? "var(--red-border)"
                                          : "var(--border)"}`,
                     }}>
                     {sentimentLabel === "positive" ? "😊" : sentimentLabel === "negative" ? "😞" : "😐"} {sentimentLabel}

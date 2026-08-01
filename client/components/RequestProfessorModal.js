@@ -9,11 +9,11 @@ import { getToken } from "../lib/auth";
 const inputClass = (hasError) => ({
   width: "100%",
   background: "var(--surface2)",
-  border: `1px solid ${hasError ? "rgba(239,68,68,0.5)" : "var(--border)"}`,
+  border: `1px solid ${hasError ? "var(--red-border)" : "var(--border)"}`,
   borderRadius: "0.75rem",
   padding: "0.625rem 1rem",
   fontSize: "0.875rem",
-  color: "#fafaf9",
+  color: "var(--text)",
   outline: "none",
   transition: "border-color 0.15s",
 });
@@ -71,10 +71,10 @@ export default function RequestProfessorModal({ isOpen, onClose }) {
           <div className="absolute inset-0 z-20 flex flex-col items-center justify-center text-center p-8"
             style={{ background: "var(--surface)", backdropFilter: "blur(4px)" }}>
             <div className="w-16 h-16 rounded-full flex items-center justify-center mb-4"
-              style={{ background: "rgba(16,185,129,0.12)", border: "2px solid rgba(16,185,129,0.3)" }}>
-              <CheckCircle2 className="w-8 h-8" style={{ color: "#34d399" }} />
+              style={{ background: "var(--green-bg)", border: "2px solid var(--green-border)" }}>
+              <CheckCircle2 className="w-8 h-8" style={{ color: "var(--green-text)" }} />
             </div>
-            <h3 className="text-xl font-bold mb-2" style={{ color: "#fafaf9" }}>Submitted!</h3>
+            <h3 className="text-xl font-bold mb-2" style={{ color: "var(--text)" }}>Submitted!</h3>
             <p className="text-sm" style={{ color: "var(--muted)" }}>
               We'll review and update the directory soon. Thanks for helping!
             </p>
@@ -85,7 +85,7 @@ export default function RequestProfessorModal({ isOpen, onClose }) {
         <div className="flex items-center justify-between px-6 py-5 shrink-0"
           style={{ borderBottom: "1px solid var(--border)" }}>
           <div>
-            <h2 className="text-base font-bold flex items-center gap-2" style={{ color: "#fafaf9" }}>
+            <h2 className="text-base font-bold flex items-center gap-2" style={{ color: "var(--text)" }}>
               <AlertCircle className="w-4 h-4" style={{ color: "var(--amber)" }} />
               Report Missing Professor
             </h2>
@@ -96,7 +96,7 @@ export default function RequestProfessorModal({ isOpen, onClose }) {
           <button onClick={onClose}
             className="p-2 rounded-xl transition-colors cursor-pointer"
             style={{ color: "var(--subtle)" }}
-            onMouseEnter={e => { e.currentTarget.style.background = "var(--surface2)"; e.currentTarget.style.color = "#fafaf9"; }}
+            onMouseEnter={e => { e.currentTarget.style.background = "var(--surface2)"; e.currentTarget.style.color = "var(--text)"; }}
             onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--subtle)"; }}
           >
             <X className="w-4 h-4" />
@@ -108,7 +108,7 @@ export default function RequestProfessorModal({ isOpen, onClose }) {
 
           {error && (
             <div className="rounded-xl px-4 py-3 text-sm flex items-center gap-2"
-              style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)", color: "#f87171" }}>
+              style={{ background: "var(--red-bg)", border: "1px solid var(--red-border)", color: "var(--red-text)" }}>
               <AlertCircle className="w-4 h-4 shrink-0" /> {error}
             </div>
           )}
@@ -141,9 +141,9 @@ export default function RequestProfessorModal({ isOpen, onClose }) {
                 placeholder="e.g. Dr. Jane Smith"
                 style={inputClass(errors.name)}
                 onFocus={e => e.target.style.borderColor = "var(--accent-border)"}
-                onBlur={e => e.target.style.borderColor = errors.name ? "rgba(239,68,68,0.5)" : "var(--border)"}
+                onBlur={e => e.target.style.borderColor = errors.name ? "var(--red-border)" : "var(--border)"}
               />
-              {errors.name && <p className="text-[10px] mt-1" style={{ color: "#f87171" }}>{errors.name.message}</p>}
+              {errors.name && <p className="text-[10px] mt-1" style={{ color: "var(--red-text)" }}>{errors.name.message}</p>}
             </div>
             <div>
               <FieldLabel icon={BarChart}>Department *</FieldLabel>
@@ -152,9 +152,9 @@ export default function RequestProfessorModal({ isOpen, onClose }) {
                 placeholder="e.g. CSE, ECE"
                 style={inputClass(errors.department)}
                 onFocus={e => e.target.style.borderColor = "var(--accent-border)"}
-                onBlur={e => e.target.style.borderColor = errors.department ? "rgba(239,68,68,0.5)" : "var(--border)"}
+                onBlur={e => e.target.style.borderColor = errors.department ? "var(--red-border)" : "var(--border)"}
               />
-              {errors.department && <p className="text-[10px] mt-1" style={{ color: "#f87171" }}>{errors.department.message}</p>}
+              {errors.department && <p className="text-[10px] mt-1" style={{ color: "var(--red-text)" }}>{errors.department.message}</p>}
             </div>
           </div>
 
@@ -166,9 +166,9 @@ export default function RequestProfessorModal({ isOpen, onClose }) {
               placeholder="e.g. OS, DBMS, AI (comma-separated)"
               style={inputClass(errors.courses)}
               onFocus={e => e.target.style.borderColor = "var(--accent-border)"}
-              onBlur={e => e.target.style.borderColor = errors.courses ? "rgba(239,68,68,0.5)" : "var(--border)"}
+              onBlur={e => e.target.style.borderColor = errors.courses ? "var(--red-border)" : "var(--border)"}
             />
-            {errors.courses && <p className="text-[10px] mt-1" style={{ color: "#f87171" }}>{errors.courses.message}</p>}
+            {errors.courses && <p className="text-[10px] mt-1" style={{ color: "var(--red-text)" }}>{errors.courses.message}</p>}
           </div>
 
           {/* Comments */}
@@ -179,7 +179,7 @@ export default function RequestProfessorModal({ isOpen, onClose }) {
               placeholder="Anything else to help us identify them?"
               rows={3}
               className="w-full rounded-xl px-4 py-2.5 text-sm resize-none focus:outline-none transition-all"
-              style={{ background: "var(--surface2)", border: "1px solid var(--border)", color: "#fafaf9" }}
+              style={{ background: "var(--surface2)", border: "1px solid var(--border)", color: "var(--text)" }}
               onFocus={e => e.target.style.borderColor = "var(--accent-border)"}
               onBlur={e => e.target.style.borderColor = "var(--border)"}
             />
@@ -188,8 +188,8 @@ export default function RequestProfessorModal({ isOpen, onClose }) {
           {/* Submit */}
           <button type="submit" disabled={submitting}
             className="w-full py-3 rounded-xl font-semibold text-sm text-white transition-all cursor-pointer disabled:opacity-60 flex items-center justify-center gap-2"
-            style={{ background: "var(--accent)", boxShadow: "0 4px 14px rgba(249,115,22,0.3)" }}
-            onMouseEnter={e => !submitting && (e.currentTarget.style.background = "#ea6d0a")}
+            style={{ background: "var(--accent)", boxShadow: "0 4px 14px var(--accent-border)" }}
+            onMouseEnter={e => !submitting && (e.currentTarget.style.background = "var(--accent-l)")}
             onMouseLeave={e => (e.currentTarget.style.background = "var(--accent)")}
           >
             {submitting ? <><Loader2 className="w-4 h-4 animate-spin" /> Submitting…</> : "Submit Report"}

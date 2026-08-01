@@ -71,11 +71,11 @@ export default function ProfessorDetailPage({ params }) {
     );
   }
 
-  // Rating config for light theme
+  // Rating config (theme-adaptive)
   const r = professor.averageRating;
-  const ratingColor = r >= 4 ? "#059669" : r >= 3 ? "#b45309" : r > 0 ? "#dc2626" : "var(--subtle)";
-  const ratingBg   = r >= 4 ? "rgba(16,185,129,0.10)" : r >= 3 ? "rgba(245,158,11,0.10)" : r > 0 ? "rgba(239,68,68,0.08)" : "var(--surface2)";
-  const ratingBorder = r >= 4 ? "rgba(16,185,129,0.25)" : r >= 3 ? "rgba(245,158,11,0.22)" : r > 0 ? "rgba(239,68,68,0.20)" : "var(--border)";
+  const ratingColor = r >= 4 ? "var(--green-text)" : r >= 3 ? "var(--amber-text)" : r > 0 ? "var(--red-text)" : "var(--subtle)";
+  const ratingBg   = r >= 4 ? "var(--green-bg)" : r >= 3 ? "var(--amber-bg)" : r > 0 ? "var(--red-bg)" : "var(--surface2)";
+  const ratingBorder = r >= 4 ? "var(--green-border)" : r >= 3 ? "var(--amber-border)" : r > 0 ? "var(--red-border)" : "var(--border)";
 
   return (
     <div className="min-h-screen" style={{ background: "var(--bg)" }}>
@@ -144,7 +144,7 @@ export default function ProfessorDetailPage({ params }) {
             <div className="flex flex-wrap lg:flex-nowrap gap-3 w-full lg:w-auto flex-shrink-0">
               {/* Overall score */}
               <div className="flex-1 lg:flex-none min-w-[110px] rounded-xl p-4 flex flex-col items-center justify-center text-white"
-                style={{ background: "var(--accent)", boxShadow: "0 4px 16px rgba(53,37,205,0.25)" }}>
+                style={{ background: "var(--accent)", boxShadow: "0 4px 16px var(--accent-border)" }}>
                 <span className="text-3xl font-black tracking-tight">
                   {r > 0 ? r.toFixed(1) : "–"}
                 </span>

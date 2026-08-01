@@ -81,8 +81,8 @@ export default function PrivacyPage() {
           {/* PESU SSO Verified Login */}
           <Section
             icon={KeyRound}
-            iconColor="#3525cd"
-            iconBg="rgba(53,37,205,0.08)"
+            iconColor="var(--accent)"
+            iconBg="var(--accent-bg)"
             title="PESU SSO Verified Login"
           >
             <p>
@@ -116,8 +116,8 @@ export default function PrivacyPage() {
           {/* Authentication & Anonymity */}
           <Section
             icon={Fingerprint}
-            iconColor="#7c3aed"
-            iconBg="rgba(124,58,237,0.08)"
+            iconColor="var(--accent-l)"
+            iconBg="var(--accent-bg)"
             title="Authentication & Anonymity"
           >
             <p>
@@ -137,8 +137,8 @@ export default function PrivacyPage() {
           {/* Content Moderation */}
           <Section
             icon={Search}
-            iconColor="#b45309"
-            iconBg="rgba(245,158,11,0.08)"
+            iconColor="var(--amber-text)"
+            iconBg="var(--amber-bg)"
             title="Automated Content Moderation"
           >
             <p>
@@ -163,8 +163,8 @@ export default function PrivacyPage() {
           {/* Trust System & Shadow Banning */}
           <Section
             icon={Flag}
-            iconColor="#dc2626"
-            iconBg="rgba(239,68,68,0.08)"
+            iconColor="var(--red-text)"
+            iconBg="var(--red-bg)"
             title="Trust System & Shadow Banning"
           >
             <p>
@@ -173,10 +173,10 @@ export default function PrivacyPage() {
               <strong style={{ color: "var(--text)" }}>Flag Count</strong>.
             </p>
             <ul className="list-disc pl-5 space-y-2">
-              <li>Submitting clean reviews increases your trust score <strong style={{ color: "#059669" }}>(+2)</strong>.</li>
+              <li>Submitting clean reviews increases your trust score <strong style={{ color: "var(--green-text)" }}>(+2)</strong>.</li>
               <li>
                 Attempting to submit reviews with profanity drastically reduces your score{" "}
-                <strong style={{ color: "#dc2626" }}>(-10)</strong> and increases your flag count.
+                <strong style={{ color: "var(--red-text)" }}>(-10)</strong> and increases your flag count.
               </li>
             </ul>
 
@@ -184,11 +184,11 @@ export default function PrivacyPage() {
             <div
               className="p-4 rounded-xl mt-2"
               style={{
-                background: "rgba(239,68,68,0.05)",
-                border: "1px solid rgba(239,68,68,0.18)",
+                background: "var(--red-bg)",
+                border: "1px solid var(--red-border)",
               }}
             >
-              <p className="font-bold mb-2 text-sm" style={{ color: "#dc2626" }}>
+              <p className="font-bold mb-2 text-sm" style={{ color: "var(--red-text)" }}>
                 ⚠ Automatic Shadow Banning
               </p>
               <p>
